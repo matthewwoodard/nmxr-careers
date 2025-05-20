@@ -37,7 +37,7 @@ const TestAccountsCreator = () => {
           data: {
             full_name: "Test Admin"
           },
-          emailRedirectTo: `${window.location.origin}/auth`
+          emailRedirectTo: `${window.location.origin}/dashboard`
         }
       });
 
@@ -97,7 +97,7 @@ const TestAccountsCreator = () => {
           data: {
             full_name: "Test User"
           },
-          emailRedirectTo: `${window.location.origin}/auth`
+          emailRedirectTo: `${window.location.origin}/dashboard`
         }
       });
 
