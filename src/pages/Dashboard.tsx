@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,6 +5,7 @@ import { useUser } from "@/contexts/UserContext";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import TestAccountsCreator from "@/components/TestAccountsCreator";
 import { 
   Table, TableHeader, TableRow, TableHead, 
   TableBody, TableCell 
@@ -40,6 +40,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -73,8 +74,31 @@ const Dashboard = () => {
       }
     };
 
+    const checkAdminRole = async () => {
+      if (!user) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', user.id)
+          .eq('role', 'admin')
+          .maybeSingle();
+          
+        if (error) {
+          console.error("Error checking admin role:", error);
+          return;
+        }
+        
+        setIsAdmin(!!data);
+      } catch (error) {
+        console.error("Error checking admin role:", error);
+      }
+    };
+
     if (user) {
       fetchApplications();
+      checkAdminRole();
     }
   }, [user, toast]);
 
@@ -104,6 +128,13 @@ const Dashboard = () => {
       <Navbar />
       <div className="bg-gray-50 min-h-screen py-10">
         <div className="container mx-auto px-4">
+          {/* Show the test account creator only for admins */}
+          {isAdmin && (
+            <div className="mb-6">
+              <TestAccountsCreator />
+            </div>
+          )}
+          
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* User Profile Section */}
             <div className="md:col-span-1">
@@ -132,6 +163,12 @@ const Dashboard = () => {
                       <div>
                         <p className="text-sm font-medium text-gray-500">State</p>
                         <p className="text-base">{profile.state}</p>
+                      </div>
+                    )}
+                    {isAdmin && (
+                      <div>
+                        <p className="text-sm font-medium text-gray-500">Role</p>
+                        <p className="text-base bg-blue-100 text-blue-800 inline-block px-2 py-0.5 rounded-full text-xs font-medium">Admin</p>
                       </div>
                     )}
                     <div className="pt-4">

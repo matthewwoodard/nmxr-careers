@@ -7,6 +7,7 @@ interface UserContextType {
   session: Session | null;
   user: User | null;
   profile: any | null;
+  isAdmin: boolean;
   isLoading: boolean;
   signOut: () => Promise<void>;
 }
@@ -17,6 +18,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<any | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -30,9 +32,11 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         if (currentSession?.user) {
           setTimeout(() => {
             fetchUserProfile(currentSession.user.id);
+            checkAdminRole(currentSession.user.id);
           }, 0);
         } else {
           setProfile(null);
+          setIsAdmin(false);
         }
       }
     );
@@ -44,6 +48,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       
       if (currentSession?.user) {
         fetchUserProfile(currentSession.user.id);
+        checkAdminRole(currentSession.user.id);
       }
       setIsLoading(false);
     });
@@ -72,12 +77,33 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const checkAdminRole = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .eq('role', 'admin')
+        .maybeSingle();
+      
+      if (error) {
+        console.error('Error checking admin role:', error);
+        return;
+      }
+      
+      setIsAdmin(!!data);
+    } catch (error) {
+      console.error('Error checking admin role:', error);
+    }
+  };
+
   const signOut = async () => {
     try {
       await supabase.auth.signOut();
       setUser(null);
       setSession(null);
       setProfile(null);
+      setIsAdmin(false);
     } catch (error) {
       console.error('Error signing out:', error);
     }
@@ -89,6 +115,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         session,
         user,
         profile,
+        isAdmin,
         isLoading,
         signOut,
       }}
