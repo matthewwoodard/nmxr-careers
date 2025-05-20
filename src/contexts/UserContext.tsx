@@ -25,6 +25,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, currentSession) => {
+        console.log("Auth event:", event);
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
         
@@ -43,6 +44,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
     // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+      console.log("Current session:", currentSession);
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
       
@@ -60,6 +62,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
   const fetchUserProfile = async (userId: string) => {
     try {
+      console.log("Fetching profile for user:", userId);
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -71,6 +74,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         return;
       }
       
+      console.log("Profile data:", data);
       setProfile(data);
     } catch (error) {
       console.error('Error fetching user profile:', error);
@@ -79,7 +83,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
   const checkAdminRole = async (userId: string) => {
     try {
-      // Use a RPC call instead of direct table access
+      console.log("Checking admin role for user:", userId);
       const { data, error } = await supabase
         .rpc('is_admin', { user_id: userId });
       
@@ -88,6 +92,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         return;
       }
       
+      console.log("Is admin?", data);
       setIsAdmin(!!data);
     } catch (error) {
       console.error('Error checking admin role:', error);

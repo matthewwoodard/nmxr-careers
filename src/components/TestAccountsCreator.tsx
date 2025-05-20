@@ -13,14 +13,27 @@ const TestAccountsCreator = () => {
   const createTestAdmin = async () => {
     setIsCreatingAdmin(true);
     try {
-      // First, create the user account
+      // First check if the admin account already exists and delete it if it does
+      const { data: existingUser } = await supabase.auth.admin.listUsers({
+        filters: {
+          email: 'test-admin@example.com'
+        }
+      }).catch(() => ({ data: null }));
+
+      if (existingUser?.users?.length) {
+        // If this fails, we'll just proceed with creation
+        await supabase.auth.admin.deleteUser(existingUser.users[0].id).catch(console.error);
+      }
+
+      // Create the admin account
       const { data: userData, error: signUpError } = await supabase.auth.signUp({
         email: "test-admin@example.com",
         password: "admin123",
         options: {
           data: {
             full_name: "Test Admin"
-          }
+          },
+          emailRedirectTo: `${window.location.origin}/auth`
         }
       });
 
@@ -30,7 +43,7 @@ const TestAccountsCreator = () => {
         throw new Error("Failed to create user account");
       }
 
-      // Then set the admin role using RPC
+      // Set the admin role using RPC function
       const { error: roleError } = await supabase.rpc(
         'add_admin_role', 
         { target_user_id: userData.user.id }
@@ -57,14 +70,27 @@ const TestAccountsCreator = () => {
   const createTestUser = async () => {
     setIsCreatingUser(true);
     try {
-      // First, create the user account
+      // First check if the user account already exists and delete it if it does
+      const { data: existingUser } = await supabase.auth.admin.listUsers({
+        filters: {
+          email: 'test-user@example.com'
+        }
+      }).catch(() => ({ data: null }));
+
+      if (existingUser?.users?.length) {
+        // If this fails, we'll just proceed with creation
+        await supabase.auth.admin.deleteUser(existingUser.users[0].id).catch(console.error);
+      }
+
+      // Create the regular user account
       const { data: userData, error: signUpError } = await supabase.auth.signUp({
         email: "test-user@example.com",
         password: "user123",
         options: {
           data: {
             full_name: "Test User"
-          }
+          },
+          emailRedirectTo: `${window.location.origin}/auth`
         }
       });
 
@@ -131,6 +157,12 @@ const TestAccountsCreator = () => {
           </Button>
           <p className="text-xs text-gray-500 mt-1">
             Email: test-user@example.com, Password: user123
+          </p>
+        </div>
+
+        <div className="mt-4">
+          <p className="text-sm text-amber-600">
+            <strong>Important:</strong> After creating accounts, you need to verify them before logging in. For testing, you may need to disable email verification in the Supabase dashboard.
           </p>
         </div>
       </div>

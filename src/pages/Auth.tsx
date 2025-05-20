@@ -14,6 +14,7 @@ const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
   const { user } = useUser();
@@ -28,6 +29,7 @@ const Auth = () => {
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setAuthError(null);
     
     try {
       if (isSignUp) {
@@ -38,6 +40,7 @@ const Auth = () => {
             data: {
               full_name: fullName,
             },
+            emailRedirectTo: `${window.location.origin}/auth`
           },
         });
         
@@ -62,6 +65,8 @@ const Auth = () => {
         navigate("/dashboard");
       }
     } catch (error: any) {
+      console.error("Auth error:", error);
+      setAuthError(error.message);
       toast({
         title: "Authentication error",
         description: error.message || "An error occurred during authentication.",
@@ -150,6 +155,12 @@ const Auth = () => {
                 <span className="px-2 bg-white text-gray-500">Or continue with email</span>
               </div>
             </div>
+            
+            {authError && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm">
+                {authError}
+              </div>
+            )}
             
             <form onSubmit={handleEmailAuth} className="space-y-4">
               {isSignUp && (
