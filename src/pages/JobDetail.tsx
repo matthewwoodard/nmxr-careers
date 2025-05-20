@@ -1,9 +1,8 @@
-
 import { useParams, Link } from "react-router-dom";
 import { jobs } from "../data/jobs";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { ArrowRight, Award, BriefCase, CalendarCheck, DollarSign, MapPin, Star, User } from "lucide-react";
+import { ArrowRight, Award, Briefcase, CalendarCheck, DollarSign, MapPin, Star, User } from "lucide-react";
 
 const JobDetail = () => {
   const { id } = useParams<{ id: string }>();
