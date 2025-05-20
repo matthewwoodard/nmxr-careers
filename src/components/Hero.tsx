@@ -14,7 +14,7 @@ const Hero = () => {
         <div className="absolute inset-0 bg-gradient-to-r from-gray-900/80 to-gray-900/60 mix-blend-multiply"></div>
       </div>
       <div className="relative">
-        <div className="container mx-auto px-4 py-24 sm:px-6 sm:py-32 lg:px-8">
+        <div className="container mx-auto px-4 py-32 sm:px-6 sm:py-40 lg:px-8"> {/* Increased padding-y by ~30% */}
           <div className="lg:w-2/3 max-w-2xl text-white">
             <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
               <span className="block text-white">Mobile Imaging.</span>
