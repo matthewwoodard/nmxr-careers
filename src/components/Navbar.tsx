@@ -55,11 +55,12 @@ const Navbar = () => {
 
         {/* Desktop menu */}
         <nav className="hidden space-x-8 md:flex">
+          <Link to="/" className="text-base font-medium text-gray-700 hover:text-brand-red transition">Home</Link>
           <Link to="/jobs" className="text-base font-medium text-gray-700 hover:text-brand-red transition">Careers</Link>
           <Link to="/benefits" className="text-base font-medium text-gray-700 hover:text-brand-red transition">Benefits</Link>
+          <Link to="/faq" className="text-base font-medium text-gray-700 hover:text-brand-red transition">FAQs</Link>
           <Link to="/about" className="text-base font-medium text-gray-700 hover:text-brand-red transition">About</Link>
           <Link to="/contact" className="text-base font-medium text-gray-700 hover:text-brand-red transition">Contact</Link>
-          <Link to="/faq" className="text-base font-medium text-gray-700 hover:text-brand-red transition">FAQs</Link>
         </nav>
 
         {/* Auth buttons (desktop) */}
@@ -101,6 +102,13 @@ const Navbar = () => {
           <div className="absolute top-16 left-0 right-0 z-10 bg-white shadow-lg md:hidden animate-fade-in">
             <div className="space-y-1 px-4 py-4">
               <Link 
+                to="/" 
+                className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100 hover:text-brand-red"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Home
+              </Link>
+              <Link 
                 to="/jobs" 
                 className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100 hover:text-brand-red"
                 onClick={() => setIsMenuOpen(false)}
@@ -115,6 +123,13 @@ const Navbar = () => {
                 Benefits
               </Link>
               <Link 
+                to="/faq" 
+                className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100 hover:text-brand-red"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                FAQs
+              </Link>
+              <Link 
                 to="/about" 
                 className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100 hover:text-brand-red"
                 onClick={() => setIsMenuOpen(false)}
@@ -127,13 +142,6 @@ const Navbar = () => {
                 onClick={() => setIsMenuOpen(false)}
               >
                 Contact
-              </Link>
-              <Link 
-                to="/faq" 
-                className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100 hover:text-brand-red"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                FAQs
               </Link>
               
               {user ? (
