@@ -35,12 +35,11 @@ const statusColors: Record<string, string> = {
 };
 
 const Dashboard = () => {
-  const { user, profile, isLoading, signOut } = useUser();
+  const { user, profile, isLoading, signOut, isAdmin } = useUser();
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -74,31 +73,8 @@ const Dashboard = () => {
       }
     };
 
-    const checkAdminRole = async () => {
-      if (!user) return;
-      
-      try {
-        const { data, error } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', user.id)
-          .eq('role', 'admin')
-          .maybeSingle();
-          
-        if (error) {
-          console.error("Error checking admin role:", error);
-          return;
-        }
-        
-        setIsAdmin(!!data);
-      } catch (error) {
-        console.error("Error checking admin role:", error);
-      }
-    };
-
     if (user) {
       fetchApplications();
-      checkAdminRole();
     }
   }, [user, toast]);
 

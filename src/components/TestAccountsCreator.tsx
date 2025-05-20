@@ -30,12 +30,11 @@ const TestAccountsCreator = () => {
         throw new Error("Failed to create user account");
       }
 
-      // Then set the admin role
-      const { error: roleError } = await supabase
-        .from('user_roles')
-        .insert([
-          { user_id: userData.user.id, role: 'admin' }
-        ]);
+      // Then set the admin role using RPC
+      const { error: roleError } = await supabase.rpc(
+        'add_admin_role', 
+        { target_user_id: userData.user.id }
+      );
 
       if (roleError) throw roleError;
       
@@ -74,15 +73,6 @@ const TestAccountsCreator = () => {
       if (!userData?.user?.id) {
         throw new Error("Failed to create user account");
       }
-
-      // Then set the user role (though this is the default)
-      const { error: roleError } = await supabase
-        .from('user_roles')
-        .insert([
-          { user_id: userData.user.id, role: 'user' }
-        ]);
-
-      if (roleError) throw roleError;
       
       toast({
         title: "User account created",

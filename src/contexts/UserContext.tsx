@@ -79,12 +79,9 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
   const checkAdminRole = async (userId: string) => {
     try {
+      // Use a RPC call instead of direct table access
       const { data, error } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', userId)
-        .eq('role', 'admin')
-        .maybeSingle();
+        .rpc('is_admin', { user_id: userId });
       
       if (error) {
         console.error('Error checking admin role:', error);
