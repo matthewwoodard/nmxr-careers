@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { AdminUserAttributes } from "@supabase/supabase-js";
 
 const TestAccountsCreator = () => {
   const [isCreatingAdmin, setIsCreatingAdmin] = useState(false);
@@ -16,10 +17,10 @@ const TestAccountsCreator = () => {
       // First try to find if the admin account already exists
       const { data: existingUsers } = await supabase.auth.admin.listUsers({
         page: 1,
-        perPage: 1,
+        perPage: 10,
       });
       
-      const existingAdmin = existingUsers?.users?.find(user => 
+      const existingAdmin = existingUsers?.users?.find((user: AdminUserAttributes) => 
         user.email === 'test-admin@example.com'
       );
 
@@ -76,10 +77,10 @@ const TestAccountsCreator = () => {
       // First try to find if the user account already exists
       const { data: existingUsers } = await supabase.auth.admin.listUsers({
         page: 1,
-        perPage: 1,
+        perPage: 10,
       });
       
-      const existingUser = existingUsers?.users?.find(user => 
+      const existingUser = existingUsers?.users?.find((user: AdminUserAttributes) => 
         user.email === 'test-user@example.com'
       );
 
