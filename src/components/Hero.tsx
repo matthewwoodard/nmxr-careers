@@ -7,11 +7,11 @@ const Hero = () => {
     <div className="relative bg-gray-50">
       <div className="absolute inset-0">
         <img 
-          src="/placeholder.svg" 
-          alt="Mobile X-Ray technologist" 
+          src="/lovable-uploads/381a3d81-6e29-4fc0-86f3-cba05216e7c5.png" 
+          alt="Healthcare professionals examining X-ray" 
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-gray-900 to-gray-900/70 mix-blend-multiply"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-gray-900/80 to-gray-900/60 mix-blend-multiply"></div>
       </div>
       <div className="relative">
         <div className="container mx-auto px-4 py-24 sm:px-6 sm:py-32 lg:px-8 flex flex-col lg:flex-row items-center">
