@@ -34,30 +34,30 @@ const JobDetail = () => {
   // Determine which hero image to use based on job type
   const getHeroImage = () => {
     if (job.title.toLowerCase().includes("x-ray") || job.title.toLowerCase().includes("radiologic")) {
-      return "/lovable-uploads/rad-tech-hero.jpg";
+      return "/placeholder.svg";
     } else if (job.title.toLowerCase().includes("ultrasound") || job.title.toLowerCase().includes("sonographer")) {
-      return "/lovable-uploads/ultrasound-hero.jpg";
+      return "/placeholder.svg";
     } else if (job.title.toLowerCase().includes("ekg")) {
-      return "/lovable-uploads/ekg-hero.jpg";
+      return "/placeholder.svg";
     }
-    return "/lovable-uploads/healthcare-hero.jpg"; // default image
+    return "/placeholder.svg"; // default image
   };
 
   // Get the state image based on job location
   const getStateImage = () => {
     const state = job.location.split(',')[1]?.trim();
     if (state === "TX" || job.location.includes("Texas")) {
-      return "/lovable-uploads/texas-location.jpg";
+      return "/placeholder.svg";
     } else if (state === "NC" || job.location.includes("North Carolina")) {
-      return "/lovable-uploads/north-carolina-location.jpg";
+      return "/placeholder.svg";
     } else if (state === "VA" || job.location.includes("Virginia")) {
-      return "/lovable-uploads/virginia-location.jpg";
+      return "/placeholder.svg";
     } else if (state === "GA" || job.location.includes("Georgia")) {
-      return "/lovable-uploads/georgia-location.jpg";
+      return "/placeholder.svg";
     } else if (state === "KY" || job.location.includes("Kentucky")) {
-      return "/lovable-uploads/kentucky-location.jpg";
+      return "/placeholder.svg";
     }
-    return "/lovable-uploads/locations-map.jpg"; // default image
+    return "/placeholder.svg"; // default image
   };
 
   return (
@@ -171,12 +171,12 @@ const JobDetail = () => {
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sm:p-8 mb-6">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-xl font-semibold text-gray-900">Company Vehicle</h2>
-                  <img src="/lovable-uploads/subaru-logo.png" alt="Subaru" className="h-8" />
+                  <img src="/placeholder.svg" alt="Subaru" className="h-8" />
                 </div>
                 
                 <div className="mb-6">
                   <img 
-                    src="/lovable-uploads/subaru-forester.jpg" 
+                    src="/placeholder.svg" 
                     alt="2025 Subaru Forester" 
                     className="w-full h-56 object-cover rounded-lg mb-4"
                   />

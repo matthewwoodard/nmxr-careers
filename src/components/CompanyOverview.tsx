@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 
 const CompanyOverview = () => {
@@ -53,13 +52,13 @@ const CompanyOverview = () => {
           <div className="order-1 lg:order-2">
             <div className="relative">
               <img
-                src="/lovable-uploads/mobile-xray-tech.jpg"
+                src="/placeholder.svg"
                 alt="Mobile X-Ray Technologist"
                 className="rounded-lg shadow-lg w-full h-auto"
               />
               <div className="absolute -bottom-6 -right-6 w-48 h-48 bg-red-50 rounded-lg shadow-lg hidden md:flex items-center justify-center p-4">
                 <img
-                  src="/lovable-uploads/nmxr-logo.png"
+                  src="/placeholder.svg"
                   alt="National Mobile X-Ray Logo"
                   className="max-w-full max-h-full"
                 />

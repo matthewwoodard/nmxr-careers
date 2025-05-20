@@ -7,7 +7,7 @@ const Hero = () => {
     <div className="relative bg-gray-50">
       <div className="absolute inset-0">
         <img 
-          src="/lovable-uploads/hero-background.jpg" 
+          src="/placeholder.svg" 
           alt="Mobile X-Ray technologist" 
           className="w-full h-full object-cover"
         />

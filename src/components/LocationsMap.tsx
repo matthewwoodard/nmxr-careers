@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 
 const LocationsMap = () => {
@@ -7,31 +8,31 @@ const LocationsMap = () => {
     TX: {
       name: "Texas",
       description: "Serving Dallas-Fort Worth, Houston, San Antonio, and Austin metropolitan areas with mobile diagnostic services.",
-      image: "/lovable-uploads/texas-location.jpg",
+      image: "/placeholder.svg",
       highlights: ["Growing team in major Texas cities", "High demand for services", "Great opportunities for new grads"]
     },
     NC: {
       name: "North Carolina",
       description: "Covering Charlotte, Raleigh-Durham, Greensboro, and surrounding communities with comprehensive mobile imaging.",
-      image: "/lovable-uploads/north-carolina-location.jpg",
+      image: "/placeholder.svg",
       highlights: ["Established presence across the state", "Expanding into rural communities", "Close-knit team environment"]
     },
     VA: {
       name: "Virginia",
       description: "Operating throughout Northern Virginia, Richmond, Hampton Roads, and the Shenandoah Valley region.",
-      image: "/lovable-uploads/virginia-location.jpg",
+      image: "/placeholder.svg",
       highlights: ["Growing market with excellent career growth", "Diverse facility types", "Supportive regional management"]
     },
     GA: {
       name: "Georgia",
       description: "Providing services across greater Atlanta, Savannah, Augusta, and expanding into additional regions.",
-      image: "/lovable-uploads/georgia-location.jpg",
+      image: "/placeholder.svg",
       highlights: ["Rapidly growing territory", "Newest market with advancement opportunities", "Collaborative team atmosphere"]
     },
     KY: {
       name: "Kentucky",
       description: "Serving Louisville, Lexington, Northern Kentucky, and surrounding areas with mobile diagnostic expertise.",
-      image: "/lovable-uploads/kentucky-location.jpg",
+      image: "/placeholder.svg",
       highlights: ["Established client relationships", "Close-knit community focus", "Excellent work-life balance"]
     }
   };
@@ -54,7 +55,7 @@ const LocationsMap = () => {
             <div className="p-6 lg:p-8">
               <div className="mb-6">
                 <img 
-                  src="/lovable-uploads/usa-map-highlighted.jpg" 
+                  src="/placeholder.svg" 
                   alt="Map of NMXR service areas" 
                   className="w-full rounded-lg"
                   useMap="#locationMap"
