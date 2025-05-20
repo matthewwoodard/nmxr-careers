@@ -1,9 +1,12 @@
 
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useUser } from "@/contexts/UserContext";
+import { Button } from "@/components/ui/button";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, signOut } = useUser();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -59,8 +62,32 @@ const Navbar = () => {
           <Link to="/contact" className="text-base font-medium text-gray-700 hover:text-brand-red transition">Contact</Link>
         </nav>
 
-        {/* Apply now button (desktop) */}
-        <div className="hidden md:flex">
+        {/* Auth buttons (desktop) */}
+        <div className="hidden md:flex items-center space-x-4">
+          {user ? (
+            <>
+              <Link
+                to="/dashboard"
+                className="text-base font-medium text-gray-700 hover:text-brand-red transition"
+              >
+                Dashboard
+              </Link>
+              <Button
+                variant="outline"
+                onClick={signOut}
+                className="rounded-md border border-gray-300 px-4 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 transition"
+              >
+                Sign Out
+              </Button>
+            </>
+          ) : (
+            <Link
+              to="/auth"
+              className="rounded-md border border-gray-300 px-4 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 transition"
+            >
+              Sign In
+            </Link>
+          )}
           <Link
             to="/jobs"
             className="rounded-md bg-brand-red px-6 py-2 text-base font-medium text-white shadow-sm hover:bg-red-700 transition"
@@ -108,6 +135,36 @@ const Navbar = () => {
               >
                 Contact
               </Link>
+              
+              {user ? (
+                <>
+                  <Link
+                    to="/dashboard"
+                    className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100 hover:text-brand-red"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Dashboard
+                  </Link>
+                  <button
+                    onClick={() => {
+                      signOut();
+                      setIsMenuOpen(false);
+                    }}
+                    className="block w-full text-left px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100 hover:text-brand-red"
+                  >
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <Link
+                  to="/auth"
+                  className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100 hover:text-brand-red"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Sign In
+                </Link>
+              )}
+              
               <Link
                 to="/jobs"
                 className="block w-full rounded-md bg-brand-red px-4 py-2 text-center font-medium text-white shadow-sm hover:bg-red-700 transition"
