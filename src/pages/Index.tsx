@@ -1,7 +1,7 @@
-
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import Hero from "@/components/Hero";
 import { ArrowRight } from "lucide-react";
 
 const Index = () => {
@@ -28,43 +28,7 @@ const Index = () => {
       <Navbar />
       <main>
         {/* Hero Section */}
-        <section className="py-16 bg-white">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="max-w-3xl mx-auto text-center">
-              <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">Your Career. Our Commitment.</h1>
-              <p className="text-xl text-gray-600 mb-8">
-                We're committed to helping you build a thriving career in mobile diagnostics while delivering exceptional patient care.
-              </p>
-              <div className="flex flex-wrap justify-center gap-4">
-                <Link 
-                  to="/jobs" 
-                  className="rounded-md bg-black px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-gray-800 transition"
-                >
-                  Find Opportunities
-                </Link>
-                <Link 
-                  to="/contact" 
-                  className="rounded-md bg-white border border-gray-300 px-6 py-3 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 transition"
-                >
-                  Contact Us
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Image Banner */}
-        <section className="bg-gray-100">
-          <div className="container mx-auto px-4 py-12">
-            <div className="bg-gray-200 h-64 rounded-lg flex items-center justify-center">
-              <img 
-                src="/placeholder.svg" 
-                alt="Mobile X-Ray Technologist" 
-                className="w-full h-full object-cover rounded-lg"
-              />
-            </div>
-          </div>
-        </section>
+        <Hero />
 
         {/* Benefits Section */}
         <section className="py-16 bg-white">
