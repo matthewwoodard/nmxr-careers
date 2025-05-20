@@ -13,16 +13,19 @@ const TestAccountsCreator = () => {
   const createTestAdmin = async () => {
     setIsCreatingAdmin(true);
     try {
-      // First check if the admin account already exists and delete it if it does
-      const { data: existingUser } = await supabase.auth.admin.listUsers({
-        filters: {
-          email: 'test-admin@example.com'
-        }
-      }).catch(() => ({ data: null }));
+      // First try to find if the admin account already exists
+      const { data: existingUsers } = await supabase.auth.admin.listUsers({
+        page: 1,
+        perPage: 1,
+      });
+      
+      const existingAdmin = existingUsers?.users?.find(user => 
+        user.email === 'test-admin@example.com'
+      );
 
-      if (existingUser?.users?.length) {
+      if (existingAdmin) {
         // If this fails, we'll just proceed with creation
-        await supabase.auth.admin.deleteUser(existingUser.users[0].id).catch(console.error);
+        await supabase.auth.admin.deleteUser(existingAdmin.id).catch(console.error);
       }
 
       // Create the admin account
@@ -70,16 +73,19 @@ const TestAccountsCreator = () => {
   const createTestUser = async () => {
     setIsCreatingUser(true);
     try {
-      // First check if the user account already exists and delete it if it does
-      const { data: existingUser } = await supabase.auth.admin.listUsers({
-        filters: {
-          email: 'test-user@example.com'
-        }
-      }).catch(() => ({ data: null }));
+      // First try to find if the user account already exists
+      const { data: existingUsers } = await supabase.auth.admin.listUsers({
+        page: 1,
+        perPage: 1,
+      });
+      
+      const existingUser = existingUsers?.users?.find(user => 
+        user.email === 'test-user@example.com'
+      );
 
-      if (existingUser?.users?.length) {
+      if (existingUser) {
         // If this fails, we'll just proceed with creation
-        await supabase.auth.admin.deleteUser(existingUser.users[0].id).catch(console.error);
+        await supabase.auth.admin.deleteUser(existingUser.id).catch(console.error);
       }
 
       // Create the regular user account
