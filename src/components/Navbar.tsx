@@ -55,10 +55,9 @@ const Navbar = () => {
 
         {/* Desktop menu */}
         <nav className="hidden space-x-8 md:flex">
-          <Link to="/jobs" className="text-base font-medium text-gray-700 hover:text-brand-red transition">Jobs</Link>
-          <Link to="/about" className="text-base font-medium text-gray-700 hover:text-brand-red transition">About Us</Link>
-          <Link to="/refer" className="text-base font-medium text-gray-700 hover:text-brand-red transition">Refer a Friend</Link>
-          <Link to="/faq" className="text-base font-medium text-gray-700 hover:text-brand-red transition">FAQs</Link>
+          <Link to="/jobs" className="text-base font-medium text-gray-700 hover:text-brand-red transition">Careers</Link>
+          <Link to="/benefits" className="text-base font-medium text-gray-700 hover:text-brand-red transition">Benefits</Link>
+          <Link to="/about" className="text-base font-medium text-gray-700 hover:text-brand-red transition">About</Link>
           <Link to="/contact" className="text-base font-medium text-gray-700 hover:text-brand-red transition">Contact</Link>
         </nav>
 
@@ -105,28 +104,21 @@ const Navbar = () => {
                 className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100 hover:text-brand-red"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Jobs
+                Careers
+              </Link>
+              <Link 
+                to="/benefits" 
+                className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100 hover:text-brand-red"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Benefits
               </Link>
               <Link 
                 to="/about" 
                 className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100 hover:text-brand-red"
                 onClick={() => setIsMenuOpen(false)}
               >
-                About Us
-              </Link>
-              <Link 
-                to="/refer" 
-                className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100 hover:text-brand-red"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Refer a Friend
-              </Link>
-              <Link 
-                to="/faq" 
-                className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100 hover:text-brand-red"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                FAQs
+                About
               </Link>
               <Link 
                 to="/contact" 
