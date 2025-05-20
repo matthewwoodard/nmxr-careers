@@ -235,7 +235,7 @@ const JobDetail = () => {
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Info</h3>
                 <ul className="space-y-4">
                   <li className="flex items-start">
-                    <BriefCase className="h-5 w-5 text-brand-red mr-3 mt-0.5 flex-shrink-0" />
+                    <Briefcase className="h-5 w-5 text-brand-red mr-3 mt-0.5 flex-shrink-0" />
                     <div>
                       <p className="font-medium text-gray-900">Job Type</p>
                       <p className="text-gray-600">Full-time</p>
