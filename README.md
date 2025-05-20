@@ -1,73 +1,98 @@
-# Welcome to your Lovable project
 
-## Project info
+# Mobile X-Ray Service Web Application
 
-**URL**: https://lovable.dev/projects/8a095bba-e7eb-43af-b4eb-effd80a99017
+## Project Overview
 
-## How can I edit this code?
+This is a web application for National Mobile X-Ray, providing information about the company's services, job opportunities, and more.
 
-There are several ways of editing your application.
+## Getting Started
 
-**Use Lovable**
+### Prerequisites
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/8a095bba-e7eb-43af-b4eb-effd80a99017) and start prompting.
+- Node.js (v16.0 or higher)
+- npm (v7.0 or higher)
 
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+You can install Node.js and npm using [nvm (Node Version Manager)](https://github.com/nvm-sh/nvm#installing-and-updating):
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# Install nvm
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# Install the latest LTS version of Node.js
+nvm install --lts
 
-# Step 3: Install the necessary dependencies.
-npm i
+# Use the installed version
+nvm use --lts
+```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+### Running Locally
+
+Follow these steps to run the application on your local machine:
+
+```sh
+# Step 1: Clone the repository
+git clone <YOUR_REPOSITORY_URL>
+
+# Step 2: Navigate to the project directory
+cd <PROJECT_DIRECTORY_NAME>
+
+# Step 3: Install dependencies
+npm install
+
+# Step 4: Start the development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+After running these commands, the application will be available at `http://localhost:8080`.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Building for Production
 
-**Use GitHub Codespaces**
+To build the application for production deployment:
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```sh
+# Build the application
+npm run build
 
-## What technologies are used for this project?
+# Preview the production build locally
+npm run preview
+```
+
+## Deployment
+
+### Option 1: Static Hosting (Netlify, Vercel, GitHub Pages)
+
+The built application is static and can be deployed to any static hosting service:
+
+1. Build the application using `npm run build`
+2. Deploy the contents of the `dist` folder to your chosen hosting provider
+
+### Option 2: Self-Hosted Server
+
+1. Build the application using `npm run build`
+2. Copy the contents of the `dist` folder to your web server
+3. Configure your web server (Apache, Nginx, etc.) to serve the static files
+
+For Nginx configuration example:
+
+```nginx
+server {
+    listen 80;
+    server_name yourdomain.com;
+    root /path/to/dist;
+    index index.html;
+    
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}
+```
+
+## Technologies Used
 
 This project is built with:
 
 - Vite
 - TypeScript
 - React
-- shadcn-ui
 - Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/8a095bba-e7eb-43af-b4eb-effd80a99017) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+- shadcn/ui components
