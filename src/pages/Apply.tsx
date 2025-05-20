@@ -1,16 +1,21 @@
 
-import { useState, useRef } from "react";
-import { useSearchParams, Link } from "react-router-dom";
+import { useState, useRef, useEffect } from "react";
+import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { jobs } from "../data/jobs";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { useUser } from "@/contexts/UserContext";
+import { supabase } from "@/integrations/supabase/client";
+import { Loader2 } from "lucide-react";
 
 const Apply = () => {
   const [searchParams] = useSearchParams();
   const jobId = searchParams.get("job");
   const job = jobs.find((j) => j.id === jobId);
+  const navigate = useNavigate();
   
+  const { user, profile } = useUser();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -27,6 +32,19 @@ const Apply = () => {
   const [errors, setErrors] = useState<{[key: string]: string}>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  
+  // Pre-fill form with user data if available
+  useEffect(() => {
+    if (user && profile) {
+      setFormData(prev => ({
+        ...prev,
+        fullName: profile.full_name || user.user_metadata?.full_name || "",
+        email: user.email || "",
+        phone: profile.phone || "",
+        state: profile.state || "",
+      }));
+    }
+  }, [user, profile]);
   
   const validateForm = () => {
     const newErrors: {[key: string]: string} = {};
@@ -73,7 +91,7 @@ const Apply = () => {
     }
   };
   
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!validateForm()) {
@@ -82,17 +100,103 @@ const Apply = () => {
     
     setIsSubmitting(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      console.log("Form submitted:", formData);
-      setIsSubmitting(false);
-      setIsSubmitted(true);
+    try {
+      // If user is not logged in, redirect to auth page
+      if (!user) {
+        toast({
+          title: "Authentication required",
+          description: "Please log in or create an account to apply.",
+        });
+        navigate("/auth");
+        return;
+      }
       
+      // Upload resume to storage if available
+      let resumeUrl = null;
+      if (formData.resume) {
+        // Generate a unique filename for the resume
+        const fileExt = formData.resume.name.split('.').pop();
+        const fileName = `${user.id}/${Date.now()}-resume.${fileExt}`;
+        
+        const { data: resumeData, error: resumeError } = await supabase.storage
+          .from('applications')
+          .upload(fileName, formData.resume);
+        
+        if (resumeError) throw resumeError;
+        
+        // Get public URL for the resume
+        const { data: publicUrlData } = supabase.storage
+          .from('applications')
+          .getPublicUrl(fileName);
+        
+        resumeUrl = publicUrlData.publicUrl;
+      }
+      
+      // Upload cover letter to storage if available
+      let coverLetterUrl = null;
+      if (formData.coverLetter) {
+        // Generate a unique filename for the cover letter
+        const fileExt = formData.coverLetter.name.split('.').pop();
+        const fileName = `${user.id}/${Date.now()}-coverletter.${fileExt}`;
+        
+        const { data: coverLetterData, error: coverLetterError } = await supabase.storage
+          .from('applications')
+          .upload(fileName, formData.coverLetter);
+        
+        if (coverLetterError) throw coverLetterError;
+        
+        // Get public URL for the cover letter
+        const { data: publicUrlData } = supabase.storage
+          .from('applications')
+          .getPublicUrl(fileName);
+        
+        coverLetterUrl = publicUrlData.publicUrl;
+      }
+      
+      // Save application to database
+      const { data, error } = await supabase
+        .from('applications')
+        .insert({
+          user_id: user.id,
+          job_id: jobId || 'unknown',
+          job_title: formData.role,
+          resume_url: resumeUrl,
+          cover_letter_url: coverLetterUrl,
+        });
+      
+      if (error) throw error;
+      
+      // Update user profile with form data if needed
+      if (
+        profile.full_name !== formData.fullName || 
+        profile.phone !== formData.phone || 
+        profile.state !== formData.state
+      ) {
+        await supabase
+          .from('profiles')
+          .update({
+            full_name: formData.fullName,
+            phone: formData.phone,
+            state: formData.state,
+          })
+          .eq('id', user.id);
+      }
+      
+      setIsSubmitted(true);
       toast({
         title: "Application Submitted",
         description: "Thank you for applying to National Mobile X-Ray!",
       });
-    }, 1500);
+    } catch (error: any) {
+      console.error('Application error:', error);
+      toast({
+        title: "Application error",
+        description: error.message || "There was an error submitting your application. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   
   if (isSubmitted) {
@@ -111,12 +215,20 @@ const Apply = () => {
               <p className="text-gray-600 mb-6">
                 Thank you for applying to National Mobile X-Ray! Our recruiting team will review your application and contact you soon.
               </p>
-              <Link
-                to="/"
-                className="inline-flex items-center rounded-md bg-brand-red px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-red-700 transition"
-              >
-                Return to Homepage
-              </Link>
+              <div className="flex flex-col sm:flex-row justify-center gap-3">
+                <Link
+                  to="/dashboard"
+                  className="inline-flex items-center rounded-md bg-brand-red px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-red-700 transition"
+                >
+                  View My Applications
+                </Link>
+                <Link
+                  to="/"
+                  className="inline-flex items-center rounded-md bg-white border border-gray-300 px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 transition"
+                >
+                  Return to Homepage
+                </Link>
+              </div>
             </div>
           </div>
         </div>
@@ -139,6 +251,13 @@ const Apply = () => {
                 </p>
               ) : (
                 <p className="text-gray-600">Complete the form below to submit your application</p>
+              )}
+              {!user && (
+                <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
+                  <p className="text-yellow-800 text-sm">
+                    <strong>Note:</strong> You'll need to create an account or sign in to submit your application. This will allow you to track application status.
+                  </p>
+                </div>
               )}
             </div>
             
@@ -318,10 +437,7 @@ const Apply = () => {
                 >
                   {isSubmitting ? (
                     <>
-                      <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
+                      <Loader2 className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" />
                       Submitting...
                     </>
                   ) : (
