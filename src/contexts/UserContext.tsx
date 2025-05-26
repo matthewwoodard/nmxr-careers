@@ -85,7 +85,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     try {
       console.log("Checking admin role for user:", userId);
       const { data, error } = await supabase
-        .rpc('is_admin', { user_id: userId });
+        .rpc('is_admin', { target_user_id: userId });
       
       if (error) {
         console.error('Error checking admin role:', error);

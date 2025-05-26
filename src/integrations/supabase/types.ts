@@ -103,7 +103,7 @@ export type Database = {
         Returns: undefined
       }
       is_admin: {
-        Args: { user_id: string }
+        Args: { target_user_id: string }
         Returns: boolean
       }
     }
