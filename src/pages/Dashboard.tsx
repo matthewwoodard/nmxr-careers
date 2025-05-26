@@ -14,7 +14,7 @@ import {
   Card, CardHeader, CardTitle, CardDescription, 
   CardContent 
 } from "@/components/ui/card";
-import { Loader2, FileText, FileX, Settings } from "lucide-react";
+import { Loader2, FileText, FileX } from "lucide-react";
 
 interface Application {
   id: string;
@@ -47,6 +47,13 @@ const Dashboard = () => {
     }
   }, [user, isLoading, navigate]);
 
+  // Redirect admins to admin dashboard
+  useEffect(() => {
+    if (!isLoading && user && isAdmin) {
+      navigate("/admin");
+    }
+  }, [user, isAdmin, isLoading, navigate]);
+
   useEffect(() => {
     const fetchApplications = async () => {
       if (!user) return;
@@ -73,10 +80,10 @@ const Dashboard = () => {
       }
     };
 
-    if (user) {
+    if (user && !isAdmin) {
       fetchApplications();
     }
-  }, [user, toast]);
+  }, [user, isAdmin, toast]);
 
   if (isLoading) {
     return (
@@ -134,12 +141,6 @@ const Dashboard = () => {
                         <p className="text-base">{profile.state}</p>
                       </div>
                     )}
-                    {isAdmin && (
-                      <div>
-                        <p className="text-sm font-medium text-gray-500">Role</p>
-                        <p className="text-base bg-blue-100 text-blue-800 inline-block px-2 py-0.5 rounded-full text-xs font-medium">Admin</p>
-                      </div>
-                    )}
                     <div className="pt-4 space-y-2">
                       <Link
                         to="/jobs"
@@ -147,15 +148,6 @@ const Dashboard = () => {
                       >
                         Browse Jobs
                       </Link>
-                      {isAdmin && (
-                        <Link
-                          to="/admin"
-                          className="inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 transition w-full"
-                        >
-                          <Settings className="h-4 w-4 mr-2" />
-                          Admin Dashboard
-                        </Link>
-                      )}
                       <button
                         onClick={handleSignOut}
                         className="w-full rounded-md bg-white px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 shadow-sm hover:bg-gray-50 transition"
