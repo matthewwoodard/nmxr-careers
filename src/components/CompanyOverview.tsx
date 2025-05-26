@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 
 const CompanyOverview = () => {
@@ -17,7 +18,7 @@ const CompanyOverview = () => {
               National Mobile X-Ray is a full-service mobile radiology provider. We bring bedside X-Ray, Ultrasound, and EKG services directly to patients in skilled nursing facilities, assisted living communities, and homes.
             </p>
             <p className="text-lg text-gray-700 mb-6">
-              With full operations across TX, NC, VA, GA, and KY—and more coming soon—we offer flexible, rewarding careers for passionate healthcare professionals.
+              With operations nationwide—and more coming soon—we offer flexible, rewarding careers for passionate healthcare professionals.
             </p>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
