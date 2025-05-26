@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 
 const Footer = () => {
@@ -13,7 +12,7 @@ const Footer = () => {
               className="h-10 w-auto" 
             />
             <p className="text-gray-600 text-sm">
-              Providing mobile diagnostic services across TX, NC, VA, GA, and KY.
+              Providing mobile diagnostic services nationwide.
             </p>
           </div>
           

@@ -25,7 +25,7 @@ const About = () => {
                 Founded in 2010, National Mobile X-Ray began with a small team of dedicated healthcare professionals serving a handful of facilities in Texas. Over the years, we've expanded our operations to multiple states, growing our team and capabilities while maintaining our commitment to exceptional patient care.
               </p>
               <p className="text-lg text-gray-700 mb-6">
-                Today, we serve thousands of patients across TX, NC, VA, GA, and KY, with plans for continued expansion to meet the growing need for mobile diagnostic services nationwide.
+                Today, we serve thousands of patients nationwide, with plans for continued expansion to meet the growing need for mobile diagnostic services across the country.
               </p>
             </div>
           </div>
