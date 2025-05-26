@@ -6,7 +6,6 @@ import { useUser } from "@/contexts/UserContext";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import TestAccountsCreator from "@/components/TestAccountsCreator";
 import { 
   Table, TableHeader, TableRow, TableHead, 
   TableBody, TableCell 
@@ -105,13 +104,6 @@ const Dashboard = () => {
       <Navbar />
       <div className="bg-gray-50 min-h-screen py-10">
         <div className="container mx-auto px-4">
-          {/* Show the test account creator only for admins */}
-          {isAdmin && (
-            <div className="mb-6">
-              <TestAccountsCreator />
-            </div>
-          )}
-          
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* User Profile Section */}
             <div className="md:col-span-1">
