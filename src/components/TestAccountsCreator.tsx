@@ -4,7 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { AdminUserAttributes } from "@supabase/supabase-js";
 
 const TestAccountsCreator = () => {
   const [isCreatingAdmin, setIsCreatingAdmin] = useState(false);
@@ -14,21 +13,6 @@ const TestAccountsCreator = () => {
   const createTestAdmin = async () => {
     setIsCreatingAdmin(true);
     try {
-      // First try to find if the admin account already exists
-      const { data: existingUsers } = await supabase.auth.admin.listUsers({
-        page: 1,
-        perPage: 10,
-      });
-      
-      const existingAdmin = existingUsers?.users?.find((user: AdminUserAttributes) => 
-        user.email === 'test-admin@example.com'
-      );
-
-      if (existingAdmin) {
-        // If this fails, we'll just proceed with creation
-        await supabase.auth.admin.deleteUser(existingAdmin.id).catch(console.error);
-      }
-
       // Create the admin account
       const { data: userData, error: signUpError } = await supabase.auth.signUp({
         email: "test-admin@example.com",
@@ -41,11 +25,24 @@ const TestAccountsCreator = () => {
         }
       });
 
-      if (signUpError) throw signUpError;
+      if (signUpError) {
+        // If user already exists, that's fine
+        if (signUpError.message.includes('already registered')) {
+          toast({
+            title: "Admin account already exists",
+            description: "Email: test-admin@example.com, Password: admin123",
+          });
+          return;
+        }
+        throw signUpError;
+      }
       
       if (!userData?.user?.id) {
         throw new Error("Failed to create user account");
       }
+
+      // Wait a moment for the user to be fully created
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
       // Set the admin role using RPC function
       const { error: roleError } = await supabase.rpc(
@@ -53,7 +50,15 @@ const TestAccountsCreator = () => {
         { target_user_id: userData.user.id }
       );
 
-      if (roleError) throw roleError;
+      if (roleError) {
+        console.error("Role assignment error:", roleError);
+        // Don't throw here - the user was created successfully
+        toast({
+          title: "Admin account created",
+          description: "Email: test-admin@example.com, Password: admin123. Note: Admin role assignment may need to be done manually.",
+        });
+        return;
+      }
       
       toast({
         title: "Admin account created",
@@ -74,21 +79,6 @@ const TestAccountsCreator = () => {
   const createTestUser = async () => {
     setIsCreatingUser(true);
     try {
-      // First try to find if the user account already exists
-      const { data: existingUsers } = await supabase.auth.admin.listUsers({
-        page: 1,
-        perPage: 10,
-      });
-      
-      const existingUser = existingUsers?.users?.find((user: AdminUserAttributes) => 
-        user.email === 'test-user@example.com'
-      );
-
-      if (existingUser) {
-        // If this fails, we'll just proceed with creation
-        await supabase.auth.admin.deleteUser(existingUser.id).catch(console.error);
-      }
-
       // Create the regular user account
       const { data: userData, error: signUpError } = await supabase.auth.signUp({
         email: "test-user@example.com",
@@ -101,7 +91,17 @@ const TestAccountsCreator = () => {
         }
       });
 
-      if (signUpError) throw signUpError;
+      if (signUpError) {
+        // If user already exists, that's fine
+        if (signUpError.message.includes('already registered')) {
+          toast({
+            title: "User account already exists",
+            description: "Email: test-user@example.com, Password: user123",
+          });
+          return;
+        }
+        throw signUpError;
+      }
       
       if (!userData?.user?.id) {
         throw new Error("Failed to create user account");
@@ -169,7 +169,7 @@ const TestAccountsCreator = () => {
 
         <div className="mt-4">
           <p className="text-sm text-amber-600">
-            <strong>Important:</strong> After creating accounts, you need to verify them before logging in. For testing, you may need to disable email verification in the Supabase dashboard.
+            <strong>Important:</strong> If accounts already exist, just use the credentials above to log in. Email verification is disabled for testing.
           </p>
         </div>
       </div>
