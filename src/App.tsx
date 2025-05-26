@@ -12,6 +12,7 @@ import JobDetail from "./pages/JobDetail";
 import Apply from "./pages/Apply";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
+import AdminDashboard from "./pages/AdminDashboard";
 import About from "./pages/About";
 import Benefits from "./pages/Benefits";
 import Contact from "./pages/Contact";
@@ -33,6 +34,7 @@ const App = () => (
             <Route path="/apply" element={<Apply />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/about" element={<About />} />
             <Route path="/benefits" element={<Benefits />} />
             <Route path="/contact" element={<Contact />} />
