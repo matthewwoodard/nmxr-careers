@@ -100,7 +100,6 @@ const JobListings = () => {
                       <SelectValue placeholder="All Modalities" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All Modalities</SelectItem>
                       {modalities.map((modality) => (
                         <SelectItem key={modality} value={modality}>
                           {modality}
@@ -120,7 +119,6 @@ const JobListings = () => {
                       <SelectValue placeholder="All Locations" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All Locations</SelectItem>
                       {Object.entries(locationsByState).map(([state, cities]) => (
                         <SelectGroup key={state}>
                           <SelectLabel>{state}</SelectLabel>
@@ -145,7 +143,6 @@ const JobListings = () => {
                       <SelectValue placeholder="All Certifications" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All Certifications</SelectItem>
                       {certifications.map((certification) => (
                         <SelectItem key={certification} value={certification}>
                           {certification}
