@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 
 const Footer = () => {
@@ -8,7 +7,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           <div className="space-y-4">
             <img 
-              src="/lovable-uploads/a4eb3ee7-40b3-4ea1-8e9e-150416b3bef3.png" 
+              src="/lovable-uploads/3a5cf06e-a0ad-4726-9486-a9dbdeb940cb.png" 
               alt="National Mobile X-Ray Logo" 
               className="h-10 w-auto" 
             />
