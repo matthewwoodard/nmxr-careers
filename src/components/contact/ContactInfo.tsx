@@ -13,7 +13,7 @@ const ContactInfo = () => {
       <div className="space-y-6">
         <div className="flex items-start">
           <Mail className="h-6 w-6 text-gray-900 mr-3" />
-          <p className="text-gray-600">hello@example.io</p>
+          <p className="text-gray-600">careers@nationalmobilexray.com</p>
         </div>
         <div className="flex items-start">
           <Phone className="h-6 w-6 text-gray-900 mr-3" />
