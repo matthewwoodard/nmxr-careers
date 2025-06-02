@@ -4,6 +4,15 @@ import { jobs } from "../data/jobs";
 import JobCard from "../components/JobCard";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  SelectGroup,
+  SelectLabel,
+} from "@/components/ui/select";
 
 const JobListings = () => {
   const [filters, setFilters] = useState({
@@ -43,9 +52,17 @@ const JobListings = () => {
     });
   };
 
-  const locations = Array.from(new Set(jobs.map(job => job.location)));
   const certifications = ["ARRT", "ARDMS", "CET"];
   const modalities = ["X-Ray", "Ultrasound", "EKG"];
+
+  // Grouped locations by state
+  const locationsByState = {
+    "North Carolina": ["Raleigh", "Fayetteville", "Charlotte", "Asheville", "Hickory", "Winston Salem", "Greensboro", "Jacksonville", "New Bern"],
+    "Texas": ["Dallas", "Houston", "Austin", "San Antonio", "Corpus Christi", "McAllen", "Lufkin", "Nacogdoches"],
+    "Virginia": ["Roanoke"],
+    "Kentucky": ["Coming Soon"],
+    "Georgia": ["Atlanta"]
+  };
 
   return (
     <>
@@ -78,19 +95,19 @@ const JobListings = () => {
                   <label htmlFor="modality" className="block text-sm font-medium text-gray-700 mb-1">
                     Modality
                   </label>
-                  <select
-                    id="modality"
-                    value={filters.modality}
-                    onChange={(e) => handleFilterChange("modality", e.target.value)}
-                    className="w-full rounded-md border border-gray-300 py-2 pl-3 pr-10 text-sm focus:border-brand-red focus:outline-none focus:ring-1 focus:ring-brand-red"
-                  >
-                    <option value="">All Modalities</option>
-                    {modalities.map((modality) => (
-                      <option key={modality} value={modality}>
-                        {modality}
-                      </option>
-                    ))}
-                  </select>
+                  <Select value={filters.modality} onValueChange={(value) => handleFilterChange("modality", value)}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="All Modalities" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">All Modalities</SelectItem>
+                      {modalities.map((modality) => (
+                        <SelectItem key={modality} value={modality}>
+                          {modality}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 {/* Location Filter */}
@@ -98,19 +115,24 @@ const JobListings = () => {
                   <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">
                     Location
                   </label>
-                  <select
-                    id="location"
-                    value={filters.location}
-                    onChange={(e) => handleFilterChange("location", e.target.value)}
-                    className="w-full rounded-md border border-gray-300 py-2 pl-3 pr-10 text-sm focus:border-brand-red focus:outline-none focus:ring-1 focus:ring-brand-red"
-                  >
-                    <option value="">All Locations</option>
-                    {locations.map((location) => (
-                      <option key={location} value={location}>
-                        {location}
-                      </option>
-                    ))}
-                  </select>
+                  <Select value={filters.location} onValueChange={(value) => handleFilterChange("location", value)}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="All Locations" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">All Locations</SelectItem>
+                      {Object.entries(locationsByState).map(([state, cities]) => (
+                        <SelectGroup key={state}>
+                          <SelectLabel>{state}</SelectLabel>
+                          {cities.map((city) => (
+                            <SelectItem key={`${state}-${city}`} value={city}>
+                              {city}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 {/* Certification Filter */}
@@ -118,19 +140,19 @@ const JobListings = () => {
                   <label htmlFor="certification" className="block text-sm font-medium text-gray-700 mb-1">
                     Certification
                   </label>
-                  <select
-                    id="certification"
-                    value={filters.certification}
-                    onChange={(e) => handleFilterChange("certification", e.target.value)}
-                    className="w-full rounded-md border border-gray-300 py-2 pl-3 pr-10 text-sm focus:border-brand-red focus:outline-none focus:ring-1 focus:ring-brand-red"
-                  >
-                    <option value="">All Certifications</option>
-                    {certifications.map((certification) => (
-                      <option key={certification} value={certification}>
-                        {certification}
-                      </option>
-                    ))}
-                  </select>
+                  <Select value={filters.certification} onValueChange={(value) => handleFilterChange("certification", value)}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="All Certifications" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">All Certifications</SelectItem>
+                      {certifications.map((certification) => (
+                        <SelectItem key={certification} value={certification}>
+                          {certification}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </div>
