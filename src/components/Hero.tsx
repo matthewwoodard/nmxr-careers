@@ -17,9 +17,9 @@ const Hero = () => {
         <div className="container mx-auto px-4 py-32 sm:px-6 sm:py-40 lg:px-8">
           <div className="lg:w-2/3 max-w-2xl text-white">
             <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
-              <span className="block text-white">Your Career.</span>
-              <span className="block text-brand-red">Their Care.</span>
-              <span className="block text-white">Real Difference.</span>
+              <span className="block text-white">Mobile Imaging.</span>
+              <span className="block text-brand-red">Flexible Careers.</span>
+              <span className="block text-white">Real Impact.</span>
             </h1>
             <p className="mt-6 max-w-lg text-xl text-gray-300">
               Join National Mobile X-Ray and deliver essential diagnostic services across five states. Enjoy flexible schedules, competitive pay, and a supportive team.

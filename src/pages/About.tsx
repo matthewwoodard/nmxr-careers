@@ -2,12 +2,14 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CompanyOverview from "@/components/CompanyOverview";
+import AboutHero from "@/components/AboutHero";
 
 const About = () => {
   return (
     <div className="flex min-h-screen flex-col">
       <Navbar />
       <main className="flex-1">
+        <AboutHero />
         <CompanyOverview />
         
         {/* The NMXR Difference */}
