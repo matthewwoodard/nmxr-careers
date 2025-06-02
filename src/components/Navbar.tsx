@@ -56,7 +56,7 @@ const Navbar = () => {
         {/* Desktop menu */}
         <nav className="hidden space-x-8 md:flex">
           <Link to="/" className="text-base font-medium text-gray-700 hover:text-brand-red transition">Home</Link>
-          <Link to="/jobs" className="text-base font-medium text-gray-700 hover:text-brand-red transition">Careers</Link>
+          <Link to="/open-positions" className="text-base font-medium text-gray-700 hover:text-brand-red transition">Careers</Link>
           <Link to="/benefits" className="text-base font-medium text-gray-700 hover:text-brand-red transition">Benefits</Link>
           <Link to="/faq" className="text-base font-medium text-gray-700 hover:text-brand-red transition">FAQs</Link>
           <Link to="/about" className="text-base font-medium text-gray-700 hover:text-brand-red transition">About</Link>
@@ -90,7 +90,7 @@ const Navbar = () => {
             </Link>
           )}
           <Link
-            to="/jobs"
+            to="/open-positions"
             className="rounded-md bg-brand-red px-6 py-2 text-base font-medium text-white shadow-sm hover:bg-red-700 transition"
           >
             Apply Now
@@ -109,7 +109,7 @@ const Navbar = () => {
                 Home
               </Link>
               <Link 
-                to="/jobs" 
+                to="/open-positions" 
                 className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100 hover:text-brand-red"
                 onClick={() => setIsMenuOpen(false)}
               >
@@ -174,7 +174,7 @@ const Navbar = () => {
               )}
               
               <Link
-                to="/jobs"
+                to="/open-positions"
                 className="block w-full rounded-md bg-brand-red px-4 py-2 text-center font-medium text-white shadow-sm hover:bg-red-700 transition"
                 onClick={() => setIsMenuOpen(false)}
               >

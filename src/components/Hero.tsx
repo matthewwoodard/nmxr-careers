@@ -26,7 +26,7 @@ const Hero = () => {
             </p>
             <div className="mt-10 flex flex-wrap gap-4">
               <Link
-                to="/jobs"
+                to="/open-positions"
                 className="rounded-md bg-brand-red px-8 py-3 text-base font-medium text-white shadow-sm hover:bg-red-700 transition"
               >
                 View Open Positions
