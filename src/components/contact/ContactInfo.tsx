@@ -19,10 +19,6 @@ const ContactInfo = () => {
           <Phone className="h-6 w-6 text-gray-900 mr-3" />
           <p className="text-gray-600">+1 (833) 431-4675</p>
         </div>
-        <div className="flex items-start">
-          <MapPin className="h-6 w-6 text-gray-900 mr-3" />
-          <p className="text-gray-600">Serving patients across TX, NC, VA, GA, KY.</p>
-        </div>
       </div>
     </div>
   );
