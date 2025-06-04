@@ -1,4 +1,3 @@
-
 export interface Job {
   id: string;
   title: string;
@@ -484,7 +483,7 @@ export const jobs: Job[] = [
       "Professional development support",
       "Company vehicle provided"
     ],
-    stateLicens: "Texas requires ARRT certification and state licensure.",
+    stateLicensing: "Texas requires ARRT certification and state licensure.",
     postedDate: "2025-05-05"
   },
   {
@@ -668,4 +667,3 @@ export const jobs: Job[] = [
     postedDate: "2025-04-30"
   }
 ];
-
