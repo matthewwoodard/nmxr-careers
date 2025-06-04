@@ -50,7 +50,7 @@ const JobCard = ({ job }: JobCardProps) => {
           </span>
           
           <Link
-            to={`/jobs/${job.id}`}
+            to={`/open-positions/${job.id}`}
             className="rounded-md bg-white px-4 py-2 text-sm font-medium text-brand-red border border-brand-red shadow-sm hover:bg-brand-red hover:text-white transition"
           >
             View Details
