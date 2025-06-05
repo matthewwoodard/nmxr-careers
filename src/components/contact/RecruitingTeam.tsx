@@ -38,7 +38,7 @@ const RecruitingTeam = () => {
           
           <div className="bg-gray-200 h-96 rounded-lg">
             <img 
-              src="/placeholder.svg" 
+              src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
               alt="Our Recruiting Team" 
               className="w-full h-full object-cover rounded-lg"
             />

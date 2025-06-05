@@ -30,35 +30,35 @@ const ContactHero = () => {
             <div className="grid grid-cols-3 grid-rows-3 gap-4 h-[500px]">
               <div className="col-span-2 row-span-1 bg-gray-200 rounded-lg">
                 <img 
-                  src="/placeholder.svg" 
+                  src="https://images.unsplash.com/photo-1582750433449-648ed127bb54?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
                   alt="Mobile X-Ray Team" 
                   className="w-full h-full object-cover rounded-lg"
                 />
               </div>
               <div className="col-span-1 row-span-2 bg-gray-200 rounded-lg">
                 <img 
-                  src="/placeholder.svg" 
+                  src="https://images.unsplash.com/photo-1559757175-0eb30cd8c063?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
                   alt="Mobile X-Ray Equipment" 
                   className="w-full h-full object-cover rounded-lg"
                 />
               </div>
               <div className="col-span-1 row-span-1 bg-gray-200 rounded-lg">
                 <img 
-                  src="/placeholder.svg" 
+                  src="https://images.unsplash.com/photo-1584467735871-8e4ac9fc1ec3?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
                   alt="Patient Care" 
                   className="w-full h-full object-cover rounded-lg"
                 />
               </div>
               <div className="col-span-1 row-span-1 bg-gray-200 rounded-lg">
                 <img 
-                  src="/placeholder.svg" 
+                  src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
                   alt="Mobile X-Ray Van" 
                   className="w-full h-full object-cover rounded-lg"
                 />
               </div>
               <div className="col-span-2 row-span-1 bg-gray-200 rounded-lg">
                 <img 
-                  src="/placeholder.svg" 
+                  src="https://images.unsplash.com/photo-1612277795421-9bc7706a4a34?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
                   alt="Technologist at Work" 
                   className="w-full h-full object-cover rounded-lg"
                 />

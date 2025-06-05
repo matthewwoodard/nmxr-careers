@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -9,17 +10,17 @@ const Index = () => {
     {
       title: "Why Choose National Mobile X-Ray?",
       description: "Discover What Sets Us Apart",
-      image: "/placeholder.svg"
+      image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
     },
     {
       title: "Tuition Reimbursement: Invest in Your Future",
       description: "Supporting Your Continuing Education",
-      image: "/placeholder.svg"
+      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
     },
     {
       title: "Relocation Assistance: Making Your Move to New Opportunities Seamless",
       description: "We've Got You Covered",
-      image: "/placeholder.svg"
+      image: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
     }
   ];
 
@@ -87,7 +88,7 @@ const Index = () => {
               </div>
               <div className="bg-gray-200 h-64 rounded-lg flex items-center justify-center">
                 <img 
-                  src="/placeholder.svg" 
+                  src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
                   alt="Education and Growth" 
                   className="w-full h-full object-cover rounded-lg"
                 />
@@ -103,7 +104,7 @@ const Index = () => {
               <div className="md:order-2">
                 <div className="bg-gray-200 h-64 rounded-lg flex items-center justify-center">
                   <img 
-                    src="/placeholder.svg" 
+                    src="https://images.unsplash.com/photo-1464207687429-7505649dae38?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
                     alt="Relocation Support" 
                     className="w-full h-full object-cover rounded-lg"
                   />
@@ -205,7 +206,7 @@ const Index = () => {
               </div>
               <div className="bg-gray-200 h-64 rounded-lg flex items-center justify-center">
                 <img 
-                  src="/placeholder.svg" 
+                  src="https://images.unsplash.com/photo-1582560469781-1965b9af903d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
                   alt="Referral Program" 
                   className="w-full h-full object-cover rounded-lg"
                 />

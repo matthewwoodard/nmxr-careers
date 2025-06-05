@@ -53,15 +53,15 @@ const CompanyOverview = () => {
           <div className="order-1 lg:order-2">
             <div className="relative">
               <img
-                src="/placeholder.svg"
+                src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
                 alt="Mobile X-Ray Technologist"
                 className="rounded-lg shadow-lg w-full h-auto"
               />
               <div className="absolute -bottom-6 -right-6 w-48 h-48 bg-red-50 rounded-lg shadow-lg hidden md:flex items-center justify-center p-4">
                 <img
-                  src="/placeholder.svg"
-                  alt="National Mobile X-Ray Logo"
-                  className="max-w-full max-h-full"
+                  src="https://images.unsplash.com/photo-1579154204601-01588f351e67?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
+                  alt="Healthcare Technology"
+                  className="max-w-full max-h-full rounded"
                 />
               </div>
             </div>
