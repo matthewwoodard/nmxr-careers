@@ -45,6 +45,57 @@ export type Database = {
         }
         Relationships: []
       }
+      jobs: {
+        Row: {
+          benefits: string[] | null
+          closing_date: string | null
+          created_at: string | null
+          description: string
+          employment_type: string
+          experience_level: string
+          id: string
+          is_active: boolean | null
+          location: string
+          posted_date: string | null
+          requirements: string[] | null
+          salary_range: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          benefits?: string[] | null
+          closing_date?: string | null
+          created_at?: string | null
+          description: string
+          employment_type?: string
+          experience_level?: string
+          id?: string
+          is_active?: boolean | null
+          location: string
+          posted_date?: string | null
+          requirements?: string[] | null
+          salary_range?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          benefits?: string[] | null
+          closing_date?: string | null
+          created_at?: string | null
+          description?: string
+          employment_type?: string
+          experience_level?: string
+          id?: string
+          is_active?: boolean | null
+          location?: string
+          posted_date?: string | null
+          requirements?: string[] | null
+          salary_range?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           email: string | null
