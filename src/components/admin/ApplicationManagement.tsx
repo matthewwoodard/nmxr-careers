@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText, MessageSquare, User, Calendar, Filter, Search } from "lucide-react";
+import { FileText, MessageSquare, User, Calendar, Filter, Search, Eye } from "lucide-react";
 import { Loader2 } from "lucide-react";
 
 interface Application {
@@ -22,6 +22,14 @@ interface Application {
   cover_letter_url: string | null;
   submitted_at: string;
   user_id: string;
+}
+
+interface UserProfile {
+  id: string;
+  full_name: string | null;
+  email: string | null;
+  phone: string | null;
+  state: string | null;
 }
 
 const statusColors: Record<string, string> = {
@@ -44,10 +52,14 @@ const ApplicationManagement = () => {
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
+  const [selectedProfile, setSelectedProfile] = useState<UserProfile | null>(null);
   const [showDialog, setShowDialog] = useState(false);
+  const [showProfileDialog, setShowProfileDialog] = useState(false);
+  const [showNoteDialog, setShowNoteDialog] = useState(false);
   const [newNote, setNewNote] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [profileLoading, setProfileLoading] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -71,6 +83,29 @@ const ApplicationManagement = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchUserProfile = async (userId: string) => {
+    setProfileLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+        
+      if (error) throw error;
+      setSelectedProfile(data);
+      setShowProfileDialog(true);
+    } catch (error: any) {
+      toast({
+        title: "Error fetching user profile",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setProfileLoading(false);
     }
   };
 
@@ -109,6 +144,15 @@ const ApplicationManagement = () => {
     setShowDialog(true);
   };
 
+  const handleViewApplicant = (application: Application) => {
+    fetchUserProfile(application.user_id);
+  };
+
+  const handleOpenNoteDialog = (application: Application) => {
+    setSelectedApplication(application);
+    setShowNoteDialog(true);
+  };
+
   const handleAddNote = () => {
     if (newNote.trim()) {
       toast({
@@ -116,6 +160,7 @@ const ApplicationManagement = () => {
         description: "Private note has been added to the application",
       });
       setNewNote("");
+      setShowNoteDialog(false);
     }
   };
 
@@ -217,7 +262,12 @@ const ApplicationManagement = () => {
                       <User className="h-4 w-4" />
                     </div>
                     <div>
-                      <p className="font-medium">User {application.user_id.slice(-8)}</p>
+                      <button
+                        onClick={() => handleViewApplicant(application)}
+                        className="font-medium text-blue-600 hover:text-blue-800 hover:underline"
+                      >
+                        User {application.user_id.slice(-8)}
+                      </button>
                       <p className="text-sm text-gray-500">ID: {application.user_id.slice(0, 8)}...</p>
                     </div>
                   </div>
@@ -256,6 +306,7 @@ const ApplicationManagement = () => {
                         size="sm"
                         onClick={() => window.open(application.resume_url!, '_blank')}
                         className="h-8 w-8 p-0"
+                        title="View Resume"
                       >
                         <FileText className="h-4 w-4" />
                       </Button>
@@ -266,6 +317,7 @@ const ApplicationManagement = () => {
                         size="sm"
                         onClick={() => window.open(application.cover_letter_url!, '_blank')}
                         className="h-8 w-8 p-0"
+                        title="View Cover Letter"
                       >
                         <FileText className="h-4 w-4 text-blue-600" />
                       </Button>
@@ -279,12 +331,15 @@ const ApplicationManagement = () => {
                       size="sm"
                       onClick={() => handleViewApplication(application)}
                     >
-                      View Details
+                      <Eye className="h-4 w-4 mr-1" />
+                      View
                     </Button>
                     <Button
                       variant="ghost"
                       size="sm"
                       className="h-8 w-8 p-0"
+                      onClick={() => handleOpenNoteDialog(application)}
+                      title="Add Note"
                     >
                       <MessageSquare className="h-4 w-4" />
                     </Button>
@@ -356,18 +411,6 @@ const ApplicationManagement = () => {
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-500 mb-2 block">Add Private Note</label>
-                <Textarea
-                  placeholder="Add a private note about this application..."
-                  value={newNote}
-                  onChange={(e) => setNewNote(e.target.value)}
-                />
-                <Button onClick={handleAddNote} className="mt-2" disabled={!newNote.trim()}>
-                  Add Note
-                </Button>
-              </div>
-
-              <div>
                 <label className="text-sm font-medium text-gray-500 mb-2 block">Update Status</label>
                 <Select
                   value={selectedApplication.status}
@@ -388,8 +431,90 @@ const ApplicationManagement = () => {
                   </SelectContent>
                 </Select>
               </div>
+
+              <div className="flex space-x-2">
+                <Button
+                  variant="outline"
+                  onClick={() => handleViewApplicant(selectedApplication)}
+                  disabled={profileLoading}
+                >
+                  {profileLoading ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <User className="h-4 w-4 mr-2" />
+                  )}
+                  View Applicant Profile
+                </Button>
+              </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* User Profile Dialog */}
+      <Dialog open={showProfileDialog} onOpenChange={setShowProfileDialog}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Applicant Profile</DialogTitle>
+          </DialogHeader>
+          {selectedProfile && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-500">Full Name</label>
+                  <p className="font-medium">{selectedProfile.full_name || 'Not provided'}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-500">Email</label>
+                  <p>{selectedProfile.email || 'Not provided'}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-500">Phone</label>
+                  <p>{selectedProfile.phone || 'Not provided'}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-500">State</label>
+                  <p>{selectedProfile.state || 'Not provided'}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-500">User ID</label>
+                  <p className="font-mono text-sm">{selectedProfile.id}</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Note Dialog */}
+      <Dialog open={showNoteDialog} onOpenChange={setShowNoteDialog}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Add Private Note</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            {selectedApplication && (
+              <div className="text-sm text-gray-600">
+                Adding note for: <span className="font-medium">{selectedApplication.job_title}</span>
+                <br />
+                Applicant: <span className="font-medium">User {selectedApplication.user_id.slice(-8)}</span>
+              </div>
+            )}
+            <Textarea
+              placeholder="Add a private note about this application..."
+              value={newNote}
+              onChange={(e) => setNewNote(e.target.value)}
+              rows={4}
+            />
+            <div className="flex space-x-2">
+              <Button onClick={handleAddNote} disabled={!newNote.trim()}>
+                Add Note
+              </Button>
+              <Button variant="outline" onClick={() => setShowNoteDialog(false)}>
+                Cancel
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
