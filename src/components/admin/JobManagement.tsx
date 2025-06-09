@@ -1,5 +1,5 @@
-
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +24,7 @@ interface JobFormData {
 }
 
 const JobManagement = () => {
+  const navigate = useNavigate();
   const [selectedJob, setSelectedJob] = useState<any>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
@@ -74,10 +75,7 @@ const JobManagement = () => {
   };
 
   const handleViewApplicants = (jobId: string) => {
-    toast({
-      title: "View Applicants",
-      description: `Viewing applicants for job ${jobId}`,
-    });
+    navigate(`/admin/jobs/${jobId}/applicants`);
   };
 
   const handleArchiveJob = (jobId: string) => {

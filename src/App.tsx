@@ -13,6 +13,7 @@ import Apply from "./pages/Apply";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import JobApplicants from "./pages/JobApplicants";
 import About from "./pages/About";
 import Benefits from "./pages/Benefits";
 import Contact from "./pages/Contact";
@@ -35,6 +36,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/jobs/:jobId/applicants" element={<JobApplicants />} />
             <Route path="/about" element={<About />} />
             <Route path="/benefits" element={<Benefits />} />
             <Route path="/contact" element={<Contact />} />
