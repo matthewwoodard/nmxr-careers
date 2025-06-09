@@ -42,7 +42,8 @@ const ContactForm = () => {
     
     try {
       // Create a contact submission record
-      const { error } = await supabase
+      // Using type assertion since the types haven't been regenerated yet
+      const { error } = await (supabase as any)
         .from('contact_submissions')
         .insert({
           name: values.name,
