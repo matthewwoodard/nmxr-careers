@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { jobs } from "../data/jobs";
@@ -165,6 +164,8 @@ const Apply = () => {
       // Upload resume to storage if available
       let resumeUrl = null;
       if (formData.resume) {
+        console.log('Uploading resume to storage...');
+        
         // Generate a unique filename for the resume
         const fileExt = formData.resume.name.split('.').pop();
         const fileName = `${user.id}/${Date.now()}-resume.${fileExt}`;
@@ -173,7 +174,12 @@ const Apply = () => {
           .from('applications')
           .upload(fileName, formData.resume);
         
-        if (resumeError) throw resumeError;
+        if (resumeError) {
+          console.error('Resume upload error:', resumeError);
+          throw resumeError;
+        }
+        
+        console.log('Resume uploaded successfully:', resumeData);
         
         // Get public URL for the resume
         const { data: publicUrlData } = supabase.storage
@@ -181,9 +187,11 @@ const Apply = () => {
           .getPublicUrl(fileName);
         
         resumeUrl = publicUrlData.publicUrl;
+        console.log('Resume URL:', resumeUrl);
       }
       
       // Save application to database
+      console.log('Saving application to database...');
       const { data, error } = await supabase
         .from('applications')
         .insert({
@@ -193,11 +201,17 @@ const Apply = () => {
           resume_url: resumeUrl,
         });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Database insert error:', error);
+        throw error;
+      }
+      
+      console.log('Application saved successfully:', data);
       
       // Update user profile with form data
+      console.log('Updating user profile...');
       const fullName = `${formData.firstName} ${formData.lastName}`.trim();
-      await supabase
+      const { error: profileError } = await supabase
         .from('profiles')
         .update({
           full_name: fullName,
@@ -205,6 +219,13 @@ const Apply = () => {
           state: formData.currentState,
         })
         .eq('id', user.id);
+      
+      if (profileError) {
+        console.error('Profile update error:', profileError);
+        // Don't throw here as the application was successful
+      }
+      
+      console.log('Profile updated successfully');
       
       setIsSubmitted(true);
       toast({

@@ -9,8 +9,25 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
-import { ArrowLeft, Mail, Phone, FileText, Calendar } from "lucide-react";
+import { ArrowLeft, Mail, Phone, FileText, Calendar, Loader2 } from "lucide-react";
 import { jobs } from "@/data/jobs";
+import { supabase } from "@/integrations/supabase/client";
+
+interface Application {
+  id: string;
+  user_id: string;
+  job_id: string;
+  job_title: string;
+  status: string;
+  submitted_at: string;
+  resume_url: string | null;
+  cover_letter_url: string | null;
+  profiles: {
+    full_name: string | null;
+    email: string | null;
+    phone: string | null;
+  } | null;
+}
 
 const JobApplicants = () => {
   const { jobId } = useParams<{ jobId: string }>();
@@ -18,40 +35,8 @@ const JobApplicants = () => {
   const { user, isAdmin, isLoading } = useUser();
   const { toast } = useToast();
   const [job, setJob] = useState<any>(null);
-
-  // Mock applicant data - in a real app this would come from the database
-  const mockApplicants = [
-    {
-      id: "1",
-      name: "John Smith",
-      email: "john.smith@example.com",
-      phone: "(555) 123-4567",
-      appliedAt: "2024-01-15T10:30:00Z",
-      status: "pending",
-      resumeUrl: "#",
-      coverLetterUrl: "#",
-    },
-    {
-      id: "2",
-      name: "Sarah Johnson",
-      email: "sarah.johnson@example.com",
-      phone: "(555) 987-6543",
-      appliedAt: "2024-01-14T14:20:00Z",
-      status: "reviewed",
-      resumeUrl: "#",
-      coverLetterUrl: "#",
-    },
-    {
-      id: "3",
-      name: "Mike Davis",
-      email: "mike.davis@example.com",
-      phone: "(555) 456-7890",
-      appliedAt: "2024-01-13T09:15:00Z",
-      status: "interviewed",
-      resumeUrl: "#",
-      coverLetterUrl: null,
-    },
-  ];
+  const [applications, setApplications] = useState<Application[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!isLoading) {
@@ -88,11 +73,83 @@ const JobApplicants = () => {
     }
   }, [jobId, navigate, toast]);
 
-  const handleStatusChange = (applicantId: string, newStatus: string) => {
-    toast({
-      title: "Status Updated",
-      description: `Applicant status changed to ${newStatus}`,
-    });
+  useEffect(() => {
+    const fetchApplications = async () => {
+      if (!jobId || !user || !isAdmin) return;
+
+      try {
+        console.log('Fetching applications for job:', jobId);
+        
+        const { data, error } = await supabase
+          .from('applications')
+          .select(`
+            *,
+            profiles (
+              full_name,
+              email,
+              phone
+            )
+          `)
+          .eq('job_id', jobId)
+          .order('submitted_at', { ascending: false });
+
+        if (error) {
+          console.error('Error fetching applications:', error);
+          throw error;
+        }
+
+        console.log('Applications fetched:', data);
+        setApplications(data || []);
+      } catch (error: any) {
+        console.error('Failed to fetch applications:', error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch applications. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchApplications();
+  }, [jobId, user, isAdmin, toast]);
+
+  const handleStatusChange = async (applicationId: string, newStatus: string) => {
+    try {
+      console.log('Updating application status:', applicationId, newStatus);
+      
+      const { error } = await supabase
+        .from('applications')
+        .update({ status: newStatus, updated_at: new Date().toISOString() })
+        .eq('id', applicationId);
+
+      if (error) {
+        console.error('Error updating status:', error);
+        throw error;
+      }
+
+      // Update local state
+      setApplications(prev => 
+        prev.map(app => 
+          app.id === applicationId 
+            ? { ...app, status: newStatus }
+            : app
+        )
+      );
+
+      toast({
+        title: "Status Updated",
+        description: `Application status changed to ${newStatus}`,
+      });
+    } catch (error: any) {
+      console.error('Failed to update status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update status. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -106,12 +163,24 @@ const JobApplicants = () => {
     }
   };
 
-  if (isLoading || !job) {
+  if (isLoading || loading) {
     return (
       <>
         <Navbar />
         <div className="min-h-screen flex items-center justify-center">
-          <div className="text-center">Loading...</div>
+          <Loader2 className="h-8 w-8 animate-spin text-brand-red" />
+        </div>
+        <Footer />
+      </>
+    );
+  }
+
+  if (!job) {
+    return (
+      <>
+        <Navbar />
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">Job not found</div>
         </div>
         <Footer />
       </>
@@ -141,7 +210,7 @@ const JobApplicants = () => {
                 </p>
               </div>
               <Badge variant="secondary" className="text-lg px-4 py-2">
-                {mockApplicants.length} Applicants
+                {applications.length} Applicants
               </Badge>
             </div>
           </div>
@@ -151,92 +220,109 @@ const JobApplicants = () => {
               <CardTitle>Applicant List</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="border rounded-lg">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Applicant</TableHead>
-                      <TableHead>Contact</TableHead>
-                      <TableHead>Applied Date</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Documents</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {mockApplicants.map((applicant) => (
-                      <TableRow key={applicant.id}>
-                        <TableCell>
-                          <div className="font-medium">{applicant.name}</div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="space-y-1">
-                            <div className="flex items-center text-sm text-gray-600">
-                              <Mail className="h-3 w-3 mr-1" />
-                              {applicant.email}
+              {applications.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-gray-500">No applications found for this job.</p>
+                </div>
+              ) : (
+                <div className="border rounded-lg">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Applicant</TableHead>
+                        <TableHead>Contact</TableHead>
+                        <TableHead>Applied Date</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Documents</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {applications.map((application) => (
+                        <TableRow key={application.id}>
+                          <TableCell>
+                            <div className="font-medium">
+                              {application.profiles?.full_name || 'Name not available'}
                             </div>
-                            <div className="flex items-center text-sm text-gray-600">
-                              <Phone className="h-3 w-3 mr-1" />
-                              {applicant.phone}
+                          </TableCell>
+                          <TableCell>
+                            <div className="space-y-1">
+                              <div className="flex items-center text-sm text-gray-600">
+                                <Mail className="h-3 w-3 mr-1" />
+                                {application.profiles?.email || 'Email not available'}
+                              </div>
+                              {application.profiles?.phone && (
+                                <div className="flex items-center text-sm text-gray-600">
+                                  <Phone className="h-3 w-3 mr-1" />
+                                  {application.profiles.phone}
+                                </div>
+                              )}
                             </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center text-sm">
-                            <Calendar className="h-3 w-3 mr-1" />
-                            {new Date(applicant.appliedAt).toLocaleDateString()}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge className={getStatusColor(applicant.status)}>
-                            {applicant.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex space-x-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => window.open(applicant.resumeUrl, '_blank')}
-                            >
-                              <FileText className="h-3 w-3 mr-1" />
-                              Resume
-                            </Button>
-                            {applicant.coverLetterUrl && (
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center text-sm">
+                              <Calendar className="h-3 w-3 mr-1" />
+                              {new Date(application.submitted_at).toLocaleDateString()}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className={getStatusColor(application.status)}>
+                              {application.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex space-x-2">
+                              {application.resume_url && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => window.open(application.resume_url!, '_blank')}
+                                >
+                                  <FileText className="h-3 w-3 mr-1" />
+                                  Resume
+                                </Button>
+                              )}
+                              {application.cover_letter_url && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => window.open(application.cover_letter_url!, '_blank')}
+                                >
+                                  <FileText className="h-3 w-3 mr-1" />
+                                  Cover Letter
+                                </Button>
+                              )}
+                              {!application.resume_url && !application.cover_letter_url && (
+                                <span className="text-sm text-gray-500">No documents</span>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex space-x-1">
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => window.open(applicant.coverLetterUrl, '_blank')}
+                                onClick={() => handleStatusChange(application.id, "reviewed")}
+                                disabled={application.status === "reviewed"}
                               >
-                                <FileText className="h-3 w-3 mr-1" />
-                                Cover Letter
+                                Review
                               </Button>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex space-x-1">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleStatusChange(applicant.id, "reviewed")}
-                            >
-                              Review
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleStatusChange(applicant.id, "interviewed")}
-                            >
-                              Interview
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleStatusChange(application.id, "interviewed")}
+                                disabled={application.status === "interviewed"}
+                              >
+                                Interview
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
