@@ -1,17 +1,19 @@
 
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText, MessageSquare, User, Calendar, Filter, Search, Eye } from "lucide-react";
+import { FileText, MessageSquare, User, Calendar, Filter, Search, Eye, ExternalLink } from "lucide-react";
 import { Loader2 } from "lucide-react";
+import { jobs } from "@/data/jobs";
 
 interface Application {
   id: string;
@@ -49,6 +51,7 @@ const statusOptions = [
 ];
 
 const ApplicationManagement = () => {
+  const navigate = useNavigate();
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
@@ -58,6 +61,7 @@ const ApplicationManagement = () => {
   const [showNoteDialog, setShowNoteDialog] = useState(false);
   const [newNote, setNewNote] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [filterJob, setFilterJob] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [profileLoading, setProfileLoading] = useState(false);
   const { toast } = useToast();
@@ -148,6 +152,14 @@ const ApplicationManagement = () => {
     fetchUserProfile(application.user_id);
   };
 
+  const handleViewJobDetails = (jobId: string) => {
+    navigate(`/open-positions/${jobId}`);
+  };
+
+  const handleViewJobApplicants = (jobId: string) => {
+    navigate(`/admin/jobs/${jobId}/applicants`);
+  };
+
   const handleOpenNoteDialog = (application: Application) => {
     setSelectedApplication(application);
     setShowNoteDialog(true);
@@ -166,10 +178,12 @@ const ApplicationManagement = () => {
 
   const filteredApplications = applications.filter(app => {
     const matchesStatus = filterStatus === "all" || app.status === filterStatus;
+    const matchesJob = filterJob === "all" || app.job_id === filterJob;
     const matchesSearch = searchTerm === "" || 
       app.job_title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      app.user_id.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesStatus && matchesSearch;
+      app.user_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      app.id.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesStatus && matchesJob && matchesSearch;
   });
 
   const getStatusCounts = () => {
@@ -179,7 +193,21 @@ const ApplicationManagement = () => {
     }, {} as Record<string, number>);
   };
 
+  const getJobCounts = () => {
+    const jobCounts: Record<string, number> = {};
+    applications.forEach(app => {
+      jobCounts[app.job_id] = (jobCounts[app.job_id] || 0) + 1;
+    });
+    return jobCounts;
+  };
+
   const statusCounts = getStatusCounts();
+  const jobCounts = getJobCounts();
+
+  const getJobTitle = (jobId: string) => {
+    const job = jobs.find(j => j.id === jobId);
+    return job ? job.title : `Job ${jobId}`;
+  };
 
   if (loading) {
     return (
@@ -192,44 +220,63 @@ const ApplicationManagement = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="flex flex-col gap-4">
         <div>
           <h3 className="text-lg font-semibold">Application Management</h3>
-          <p className="text-sm text-gray-600">Review and manage job applications</p>
+          <p className="text-sm text-gray-600">Review and manage job applications across all positions</p>
         </div>
         
         {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-          <div className="relative">
+        <div className="flex flex-col lg:flex-row gap-4">
+          <div className="relative flex-1">
             <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <Input
-              placeholder="Search applications..."
+              placeholder="Search applications, job titles, or user IDs..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9 w-full sm:w-64"
+              className="pl-9"
             />
           </div>
-          <Select value={filterStatus} onValueChange={setFilterStatus}>
-            <SelectTrigger className="w-full sm:w-40">
-              <Filter className="h-4 w-4 mr-2" />
-              <SelectValue placeholder="Filter by status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              {statusOptions.map((status) => (
-                <SelectItem key={status.value} value={status.value}>
-                  {status.label} ({statusCounts[status.value] || 0})
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex gap-2">
+            <Select value={filterStatus} onValueChange={setFilterStatus}>
+              <SelectTrigger className="w-48">
+                <Filter className="h-4 w-4 mr-2" />
+                <SelectValue placeholder="Filter by status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status ({applications.length})</SelectItem>
+                {statusOptions.map((status) => (
+                  <SelectItem key={status.value} value={status.value}>
+                    {status.label} ({statusCounts[status.value] || 0})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={filterJob} onValueChange={setFilterJob}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Filter by job" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Jobs</SelectItem>
+                {jobs.map((job) => (
+                  <SelectItem key={job.id} value={job.id}>
+                    {job.title} ({jobCounts[job.id] || 0})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 
       {/* Status Cards */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         {statusOptions.map((status) => (
-          <Card key={status.value} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setFilterStatus(status.value)}>
+          <Card 
+            key={status.value} 
+            className="cursor-pointer hover:shadow-md transition-shadow" 
+            onClick={() => setFilterStatus(status.value)}
+          >
             <CardContent className="p-4">
               <div className="text-center">
                 <p className="text-2xl font-bold">{statusCounts[status.value] || 0}</p>
@@ -238,6 +285,49 @@ const ApplicationManagement = () => {
             </CardContent>
           </Card>
         ))}
+      </div>
+
+      {/* Job Performance Cards */}
+      <div>
+        <h4 className="text-md font-semibold mb-3">Applications by Job</h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {jobs.slice(0, 6).map((job) => (
+            <Card key={job.id} className="hover:shadow-md transition-shadow">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium">{job.title}</CardTitle>
+                <p className="text-xs text-gray-500">{job.location}</p>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-2xl font-bold">{jobCounts[job.id] || 0}</p>
+                    <p className="text-xs text-gray-600">Applications</p>
+                  </div>
+                  <div className="flex gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleViewJobDetails(job.id)}
+                      className="h-8 w-8 p-0"
+                      title="View job details"
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleViewJobApplicants(job.id)}
+                      className="h-8 w-8 p-0"
+                      title="View applicants"
+                    >
+                      <User className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
 
       {/* Applications Table */}
@@ -272,7 +362,17 @@ const ApplicationManagement = () => {
                     </div>
                   </div>
                 </TableCell>
-                <TableCell className="font-medium">{application.job_title}</TableCell>
+                <TableCell>
+                  <div>
+                    <p className="font-medium">{application.job_title}</p>
+                    <button
+                      onClick={() => handleViewJobDetails(application.job_id)}
+                      className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                    >
+                      View Job Details
+                    </button>
+                  </div>
+                </TableCell>
                 <TableCell>
                   <Select
                     value={application.status}
@@ -353,7 +453,10 @@ const ApplicationManagement = () => {
 
       {filteredApplications.length === 0 && (
         <div className="text-center py-8 text-gray-500">
-          No applications found matching your criteria.
+          {applications.length === 0 
+            ? "No applications found. Applications will appear here once candidates start applying."
+            : "No applications match your current filters."
+          }
         </div>
       )}
 
@@ -369,6 +472,13 @@ const ApplicationManagement = () => {
                 <div>
                   <label className="text-sm font-medium text-gray-500">Position</label>
                   <p className="font-medium">{selectedApplication.job_title}</p>
+                  <Button
+                    variant="link"
+                    onClick={() => handleViewJobDetails(selectedApplication.job_id)}
+                    className="p-0 h-auto text-blue-600 hover:text-blue-800"
+                  >
+                    View Job Details
+                  </Button>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">Status</label>
@@ -381,8 +491,8 @@ const ApplicationManagement = () => {
                   <p>{new Date(selectedApplication.submitted_at).toLocaleDateString()}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Applicant ID</label>
-                  <p className="font-mono text-sm">{selectedApplication.user_id}</p>
+                  <label className="text-sm font-medium text-gray-500">Application ID</label>
+                  <p className="font-mono text-sm">{selectedApplication.id}</p>
                 </div>
               </div>
 
@@ -444,6 +554,13 @@ const ApplicationManagement = () => {
                     <User className="h-4 w-4 mr-2" />
                   )}
                   View Applicant Profile
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => handleViewJobApplicants(selectedApplication.job_id)}
+                >
+                  <User className="h-4 w-4 mr-2" />
+                  View All Applicants for this Job
                 </Button>
               </div>
             </div>
