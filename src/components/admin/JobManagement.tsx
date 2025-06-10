@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -12,21 +13,36 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Plus, Edit, Archive, Eye, Trash2, Users, Calendar } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { jobs } from "@/data/jobs";
+
+interface Job {
+  id: string;
+  title: string;
+  location: string;
+  description: string;
+  employment_type: string;
+  experience_level: string;
+  salary_range: string | null;
+  requirements: string[] | null;
+  benefits: string[] | null;
+  posted_date: string | null;
+  is_active: boolean | null;
+}
 
 interface JobFormData {
   title: string;
   location: string;
-  summary: string;
   description: string;
+  employment_type: string;
+  experience_level: string;
+  salary_range: string;
   requirements: string;
   benefits: string;
-  tags: string;
 }
 
 const JobManagement = () => {
   const navigate = useNavigate();
-  const [selectedJob, setSelectedJob] = useState<any>(null);
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
   const [jobApplications, setJobApplications] = useState<Record<string, number>>({});
@@ -37,15 +53,48 @@ const JobManagement = () => {
     defaultValues: {
       title: "",
       location: "",
-      summary: "",
       description: "",
+      employment_type: "full-time",
+      experience_level: "entry",
+      salary_range: "",
       requirements: "",
       benefits: "",
-      tags: "",
     },
   });
 
-  // Fetch real application counts from the database
+  // Fetch jobs from the database
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        console.log('Fetching jobs from database...');
+        
+        const { data, error } = await supabase
+          .from('jobs')
+          .select('*')
+          .eq('is_active', true)
+          .order('posted_date', { ascending: false });
+
+        if (error) {
+          console.error('Error fetching jobs:', error);
+          throw error;
+        }
+
+        console.log('Jobs fetched:', data);
+        setJobs(data || []);
+      } catch (error: any) {
+        console.error('Failed to fetch jobs:', error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch jobs. Please try again.",
+          variant: "destructive",
+        });
+      }
+    };
+
+    fetchJobs();
+  }, [toast]);
+
+  // Fetch application counts from the database
   useEffect(() => {
     const fetchApplicationCounts = async () => {
       try {
@@ -78,7 +127,6 @@ const JobManagement = () => {
           description: "Failed to fetch application counts. Using default values.",
           variant: "destructive",
         });
-        // Fallback to empty counts if there's an error
         setJobApplications({});
       } finally {
         setLoading(false);
@@ -88,17 +136,18 @@ const JobManagement = () => {
     fetchApplicationCounts();
   }, [toast]);
 
-  const handleEditJob = (job: any) => {
+  const handleEditJob = (job: Job) => {
     setSelectedJob(job);
     setIsEditing(true);
     form.reset({
       title: job.title,
       location: job.location,
-      summary: job.summary,
       description: job.description,
-      requirements: job.requirements.join('\n'),
-      benefits: job.benefits.join('\n'),
-      tags: job.tags.join(', '),
+      employment_type: job.employment_type,
+      experience_level: job.experience_level,
+      salary_range: job.salary_range || '',
+      requirements: job.requirements?.join('\n') || '',
+      benefits: job.benefits?.join('\n') || '',
     });
     setShowDialog(true);
   };
@@ -114,28 +163,126 @@ const JobManagement = () => {
     navigate(`/admin/jobs/${jobId}/applicants`);
   };
 
-  const handleArchiveJob = (jobId: string) => {
-    toast({
-      title: "Job Archived",
-      description: "Job has been archived successfully",
-    });
+  const handleArchiveJob = async (jobId: string) => {
+    try {
+      const { error } = await supabase
+        .from('jobs')
+        .update({ is_active: false })
+        .eq('id', jobId);
+
+      if (error) throw error;
+
+      // Update local state
+      setJobs(prev => prev.filter(job => job.id !== jobId));
+      
+      toast({
+        title: "Job Archived",
+        description: "Job has been archived successfully",
+      });
+    } catch (error: any) {
+      console.error('Failed to archive job:', error);
+      toast({
+        title: "Error",
+        description: "Failed to archive job. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleDeleteJob = (jobId: string) => {
-    toast({
-      title: "Job Deleted",
-      description: "Job has been deleted successfully",
-      variant: "destructive",
-    });
+  const handleDeleteJob = async (jobId: string) => {
+    try {
+      // First delete all applications for this job
+      await supabase
+        .from('applications')
+        .delete()
+        .eq('job_id', jobId);
+
+      // Then delete the job
+      const { error } = await supabase
+        .from('jobs')
+        .delete()
+        .eq('id', jobId);
+
+      if (error) throw error;
+
+      // Update local state
+      setJobs(prev => prev.filter(job => job.id !== jobId));
+      setJobApplications(prev => {
+        const newCounts = { ...prev };
+        delete newCounts[jobId];
+        return newCounts;
+      });
+      
+      toast({
+        title: "Job Deleted",
+        description: "Job has been deleted successfully",
+        variant: "destructive",
+      });
+    } catch (error: any) {
+      console.error('Failed to delete job:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete job. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const onSubmit = (data: JobFormData) => {
-    toast({
-      title: isEditing ? "Job Updated" : "Job Created",
-      description: isEditing ? "Job has been updated successfully" : "New job has been created successfully",
-    });
-    setShowDialog(false);
-    form.reset();
+  const onSubmit = async (data: JobFormData) => {
+    try {
+      const jobData = {
+        title: data.title,
+        location: data.location,
+        description: data.description,
+        employment_type: data.employment_type,
+        experience_level: data.experience_level,
+        salary_range: data.salary_range || null,
+        requirements: data.requirements ? data.requirements.split('\n').filter(r => r.trim()) : null,
+        benefits: data.benefits ? data.benefits.split('\n').filter(b => b.trim()) : null,
+        is_active: true,
+      };
+
+      if (isEditing && selectedJob) {
+        const { error } = await supabase
+          .from('jobs')
+          .update(jobData)
+          .eq('id', selectedJob.id);
+
+        if (error) throw error;
+
+        // Update local state
+        setJobs(prev => prev.map(job => 
+          job.id === selectedJob.id 
+            ? { ...job, ...jobData }
+            : job
+        ));
+      } else {
+        const { data: newJob, error } = await supabase
+          .from('jobs')
+          .insert([jobData])
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        // Add to local state
+        setJobs(prev => [newJob, ...prev]);
+      }
+
+      toast({
+        title: isEditing ? "Job Updated" : "Job Created",
+        description: isEditing ? "Job has been updated successfully" : "New job has been created successfully",
+      });
+      setShowDialog(false);
+      form.reset();
+    } catch (error: any) {
+      console.error('Failed to save job:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save job. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const totalApplications = Object.values(jobApplications).reduce((sum, count) => sum + count, 0);
@@ -176,7 +323,7 @@ const JobManagement = () => {
                     <FormItem>
                       <FormLabel>Job Title</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g. Software Engineer" {...field} />
+                        <Input placeholder="e.g. Mobile X-Ray Technologist" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -189,20 +336,7 @@ const JobManagement = () => {
                     <FormItem>
                       <FormLabel>Location</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g. San Francisco, CA" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="summary"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Summary</FormLabel>
-                      <FormControl>
-                        <Textarea placeholder="Brief job summary..." {...field} />
+                        <Input placeholder="e.g. Texas" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -216,6 +350,45 @@ const JobManagement = () => {
                       <FormLabel>Description</FormLabel>
                       <FormControl>
                         <Textarea placeholder="Detailed job description..." {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="employment_type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Employment Type</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g. full-time" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="experience_level"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Experience Level</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g. entry, mid, senior" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="salary_range"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Salary Range</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g. $50,000 - $65,000" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -242,19 +415,6 @@ const JobManagement = () => {
                       <FormLabel>Benefits (one per line)</FormLabel>
                       <FormControl>
                         <Textarea placeholder="List benefits, one per line..." {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="tags"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Tags (comma separated)</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g. Full-time, Remote, Senior" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -325,7 +485,7 @@ const JobManagement = () => {
               <TableHead>Job Title</TableHead>
               <TableHead>Location</TableHead>
               <TableHead>Applications</TableHead>
-              <TableHead>Tags</TableHead>
+              <TableHead>Employment Type</TableHead>
               <TableHead>Posted Date</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
@@ -345,20 +505,13 @@ const JobManagement = () => {
                   </Button>
                 </TableCell>
                 <TableCell>
-                  <div className="flex flex-wrap gap-1">
-                    {job.tags.slice(0, 2).map((tag, index) => (
-                      <Badge key={index} variant="secondary" className="text-xs">
-                        {tag}
-                      </Badge>
-                    ))}
-                    {job.tags.length > 2 && (
-                      <Badge variant="outline" className="text-xs">
-                        +{job.tags.length - 2}
-                      </Badge>
-                    )}
-                  </div>
+                  <Badge variant="secondary" className="text-xs">
+                    {job.employment_type}
+                  </Badge>
                 </TableCell>
-                <TableCell>{new Date(job.postedDate).toLocaleDateString()}</TableCell>
+                <TableCell>
+                  {job.posted_date ? new Date(job.posted_date).toLocaleDateString() : 'N/A'}
+                </TableCell>
                 <TableCell>
                   <div className="flex space-x-1">
                     <Button

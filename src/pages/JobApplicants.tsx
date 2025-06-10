@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useUser } from "@/contexts/UserContext";
@@ -9,8 +10,14 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { ArrowLeft, Mail, Phone, FileText, Calendar, Loader2 } from "lucide-react";
-import { jobs } from "@/data/jobs";
 import { supabase } from "@/integrations/supabase/client";
+
+interface Job {
+  id: string;
+  title: string;
+  location: string;
+  description: string;
+}
 
 interface Application {
   id: string;
@@ -33,7 +40,7 @@ const JobApplicants = () => {
   const navigate = useNavigate();
   const { user, isAdmin, isLoading } = useUser();
   const { toast } = useToast();
-  const [job, setJob] = useState<any>(null);
+  const [job, setJob] = useState<Job | null>(null);
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -57,11 +64,27 @@ const JobApplicants = () => {
   }, [user, isAdmin, isLoading, navigate, toast]);
 
   useEffect(() => {
-    if (jobId) {
-      const foundJob = jobs.find(j => j.id === jobId);
-      if (foundJob) {
-        setJob(foundJob);
-      } else {
+    const fetchJob = async () => {
+      if (!jobId) return;
+
+      try {
+        console.log('Fetching job:', jobId);
+        
+        const { data, error } = await supabase
+          .from('jobs')
+          .select('id, title, location, description')
+          .eq('id', jobId)
+          .single();
+
+        if (error) {
+          console.error('Error fetching job:', error);
+          throw error;
+        }
+
+        console.log('Job fetched:', data);
+        setJob(data);
+      } catch (error: any) {
+        console.error('Failed to fetch job:', error);
         toast({
           title: "Job Not Found",
           description: "The requested job could not be found.",
@@ -69,7 +92,9 @@ const JobApplicants = () => {
         });
         navigate("/admin");
       }
-    }
+    };
+
+    fetchJob();
   }, [jobId, navigate, toast]);
 
   useEffect(() => {
