@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useUser } from "@/contexts/UserContext";
@@ -83,8 +82,15 @@ const JobApplicants = () => {
         const { data, error } = await supabase
           .from('applications')
           .select(`
-            *,
-            profiles (
+            id,
+            user_id,
+            job_id,
+            job_title,
+            status,
+            submitted_at,
+            resume_url,
+            cover_letter_url,
+            profiles!fk_applications_user_id (
               full_name,
               email,
               phone
