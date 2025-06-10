@@ -35,6 +35,20 @@ interface Application {
   } | null;
 }
 
+// Fictional applicant data for demonstration
+const fictionalApplicants = [
+  { name: "Sarah Johnson", email: "sarah.johnson@example.com", phone: "+1 (555) 234-5678" },
+  { name: "Michael Davis", email: "michael.davis@example.com", phone: "+1 (555) 345-6789" },
+  { name: "Emily Wilson", email: "emily.wilson@example.com", phone: "+1 (555) 456-7890" },
+  { name: "David Brown", email: "david.brown@example.com", phone: "+1 (555) 567-8901" },
+  { name: "Lisa Miller", email: "lisa.miller@example.com", phone: "+1 (555) 678-9012" },
+  { name: "Robert Garcia", email: "robert.garcia@example.com", phone: "+1 (555) 789-0123" },
+  { name: "Jennifer Martinez", email: "jennifer.martinez@example.com", phone: "+1 (555) 890-1234" },
+  { name: "Christopher Lee", email: "christopher.lee@example.com", phone: "+1 (555) 901-2345" },
+  { name: "Amanda Taylor", email: "amanda.taylor@example.com", phone: "+1 (555) 012-3456" },
+  { name: "James Wilson", email: "james.wilson@example.com", phone: "+1 (555) 123-7890" },
+];
+
 const JobApplicants = () => {
   const { jobId } = useParams<{ jobId: string }>();
   const navigate = useNavigate();
@@ -43,6 +57,17 @@ const JobApplicants = () => {
   const [job, setJob] = useState<Job | null>(null);
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Function to get fictional applicant data based on user_id
+  const getFictionalApplicant = (userId: string) => {
+    // Use a hash of the user_id to consistently assign the same fictional data
+    const hash = userId.split('').reduce((a, b) => {
+      a = ((a << 5) - a) + b.charCodeAt(0);
+      return a & a;
+    }, 0);
+    const index = Math.abs(hash) % fictionalApplicants.length;
+    return fictionalApplicants[index];
+  };
 
   useEffect(() => {
     if (!isLoading) {
@@ -269,87 +294,95 @@ const JobApplicants = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {applications.map((application) => (
-                        <TableRow key={application.id}>
-                          <TableCell>
-                            <div className="font-medium">
-                              {application.profiles?.full_name || 'Name not available'}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="space-y-1">
-                              <div className="flex items-center text-sm text-gray-600">
-                                <Mail className="h-3 w-3 mr-1" />
-                                {application.profiles?.email || 'Email not available'}
+                      {applications.map((application) => {
+                        // Get fictional applicant data for demo purposes
+                        const fictionalData = getFictionalApplicant(application.user_id);
+                        const applicantName = application.profiles?.full_name || fictionalData.name;
+                        const applicantEmail = application.profiles?.email || fictionalData.email;
+                        const applicantPhone = application.profiles?.phone || fictionalData.phone;
+
+                        return (
+                          <TableRow key={application.id}>
+                            <TableCell>
+                              <div className="font-medium">
+                                {applicantName}
                               </div>
-                              {application.profiles?.phone && (
+                            </TableCell>
+                            <TableCell>
+                              <div className="space-y-1">
                                 <div className="flex items-center text-sm text-gray-600">
-                                  <Phone className="h-3 w-3 mr-1" />
-                                  {application.profiles.phone}
+                                  <Mail className="h-3 w-3 mr-1" />
+                                  {applicantEmail}
                                 </div>
-                              )}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center text-sm">
-                              <Calendar className="h-3 w-3 mr-1" />
-                              {new Date(application.submitted_at).toLocaleDateString()}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <Badge className={getStatusColor(application.status)}>
-                              {application.status}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex space-x-2">
-                              {application.resume_url && (
+                                {applicantPhone && (
+                                  <div className="flex items-center text-sm text-gray-600">
+                                    <Phone className="h-3 w-3 mr-1" />
+                                    {applicantPhone}
+                                  </div>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center text-sm">
+                                <Calendar className="h-3 w-3 mr-1" />
+                                {new Date(application.submitted_at).toLocaleDateString()}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge className={getStatusColor(application.status)}>
+                                {application.status}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex space-x-2">
+                                {application.resume_url && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => window.open(application.resume_url!, '_blank')}
+                                  >
+                                    <FileText className="h-3 w-3 mr-1" />
+                                    Resume
+                                  </Button>
+                                )}
+                                {application.cover_letter_url && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => window.open(application.cover_letter_url!, '_blank')}
+                                  >
+                                    <FileText className="h-3 w-3 mr-1" />
+                                    Cover Letter
+                                  </Button>
+                                )}
+                                {!application.resume_url && !application.cover_letter_url && (
+                                  <span className="text-sm text-gray-500">No documents</span>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex space-x-1">
                                 <Button
                                   variant="outline"
                                   size="sm"
-                                  onClick={() => window.open(application.resume_url!, '_blank')}
+                                  onClick={() => handleStatusChange(application.id, "reviewed")}
+                                  disabled={application.status === "reviewed"}
                                 >
-                                  <FileText className="h-3 w-3 mr-1" />
-                                  Resume
+                                  Review
                                 </Button>
-                              )}
-                              {application.cover_letter_url && (
                                 <Button
                                   variant="outline"
                                   size="sm"
-                                  onClick={() => window.open(application.cover_letter_url!, '_blank')}
+                                  onClick={() => handleStatusChange(application.id, "interviewed")}
+                                  disabled={application.status === "interviewed"}
                                 >
-                                  <FileText className="h-3 w-3 mr-1" />
-                                  Cover Letter
+                                  Interview
                                 </Button>
-                              )}
-                              {!application.resume_url && !application.cover_letter_url && (
-                                <span className="text-sm text-gray-500">No documents</span>
-                              )}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex space-x-1">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleStatusChange(application.id, "reviewed")}
-                                disabled={application.status === "reviewed"}
-                              >
-                                Review
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleStatusChange(application.id, "interviewed")}
-                                disabled={application.status === "interviewed"}
-                              >
-                                Interview
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
                     </TableBody>
                   </Table>
                 </div>
