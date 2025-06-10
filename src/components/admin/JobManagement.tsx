@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -29,6 +30,7 @@ const JobManagement = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
   const [jobApplications, setJobApplications] = useState<Record<string, number>>({});
+  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
   const form = useForm<JobFormData>({
@@ -43,14 +45,48 @@ const JobManagement = () => {
     },
   });
 
-  // Mock application counts - in real app this would come from the database
+  // Fetch real application counts from the database
   useEffect(() => {
-    const mockCounts: Record<string, number> = {};
-    jobs.forEach(job => {
-      mockCounts[job.id] = Math.floor(Math.random() * 25) + 1;
-    });
-    setJobApplications(mockCounts);
-  }, []);
+    const fetchApplicationCounts = async () => {
+      try {
+        console.log('Fetching application counts for jobs...');
+        
+        const { data, error } = await supabase
+          .from('applications')
+          .select('job_id')
+          .order('submitted_at', { ascending: false });
+
+        if (error) {
+          console.error('Error fetching applications:', error);
+          throw error;
+        }
+
+        console.log('Applications data:', data);
+
+        // Count applications per job
+        const counts: Record<string, number> = {};
+        data?.forEach(app => {
+          counts[app.job_id] = (counts[app.job_id] || 0) + 1;
+        });
+
+        console.log('Application counts:', counts);
+        setJobApplications(counts);
+      } catch (error: any) {
+        console.error('Failed to fetch application counts:', error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch application counts. Using default values.",
+          variant: "destructive",
+        });
+        // Fallback to empty counts if there's an error
+        setJobApplications({});
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchApplicationCounts();
+  }, [toast]);
 
   const handleEditJob = (job: any) => {
     setSelectedJob(job);
@@ -101,6 +137,17 @@ const JobManagement = () => {
     setShowDialog(false);
     form.reset();
   };
+
+  const totalApplications = Object.values(jobApplications).reduce((sum, count) => sum + count, 0);
+  const averageApplications = jobs.length > 0 ? Math.round(totalApplications / jobs.length) : 0;
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-red"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -247,9 +294,7 @@ const JobManagement = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Total Applications</p>
-                <p className="text-2xl font-bold">
-                  {Object.values(jobApplications).reduce((sum, count) => sum + count, 0)}
-                </p>
+                <p className="text-2xl font-bold">{totalApplications}</p>
               </div>
               <div className="p-2 bg-green-100 rounded-lg">
                 <Users className="h-5 w-5 text-green-600" />
@@ -262,9 +307,7 @@ const JobManagement = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Avg Applications/Job</p>
-                <p className="text-2xl font-bold">
-                  {jobs.length > 0 ? Math.round(Object.values(jobApplications).reduce((sum, count) => sum + count, 0) / jobs.length) : 0}
-                </p>
+                <p className="text-2xl font-bold">{averageApplications}</p>
               </div>
               <div className="p-2 bg-yellow-100 rounded-lg">
                 <Eye className="h-5 w-5 text-yellow-600" />
