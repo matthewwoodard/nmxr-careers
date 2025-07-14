@@ -190,6 +190,20 @@ const Apply = () => {
         console.log('Resume URL:', resumeUrl);
       }
       
+      // Determine modality and certification from job data
+      let modality = 'X-Ray'; // Default
+      let certification = 'ARRT'; // Default
+      
+      if (job) {
+        if (job.title.toLowerCase().includes('ultrasound')) {
+          modality = 'Ultrasound';
+          certification = 'ARDMS';
+        } else if (job.title.toLowerCase().includes('x-ray')) {
+          modality = 'X-Ray';
+          certification = 'ARRT';
+        }
+      }
+
       // Save application to database
       console.log('Saving application to database...');
       const { data, error } = await supabase
@@ -197,8 +211,11 @@ const Apply = () => {
         .insert({
           user_id: user.id,
           job_id: jobId || 'unknown',
-          job_title: formData.role,
+          job_title: 'Radiologic Technologist', // Updated as per requirement
           resume_url: resumeUrl,
+          modality: modality,
+          certification: certification,
+          status: 'new',
         });
       
       if (error) {
@@ -414,11 +431,12 @@ const Apply = () => {
                     } px-3 py-2 shadow-sm focus:border-brand-red focus:outline-none focus:ring-1 focus:ring-brand-red`}
                   >
                     <option value="">Select a state</option>
-                    <option value="Texas">Texas</option>
-                    <option value="North Carolina">North Carolina</option>
-                    <option value="Virginia">Virginia</option>
-                    <option value="Georgia">Georgia</option>
-                    <option value="Kentucky">Kentucky</option>
+                     <option value="Texas">Texas</option>
+                     <option value="North Carolina">North Carolina</option>
+                     <option value="Virginia">Virginia</option>
+                     <option value="Georgia">Georgia</option>
+                     <option value="Kentucky">Kentucky</option>
+                     <option value="Arizona">Arizona</option>
                   </select>
                   {errors.currentState && <p className="mt-1 text-sm text-red-600">{errors.currentState}</p>}
                 </div>

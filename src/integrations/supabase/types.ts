@@ -16,10 +16,13 @@ export type Database = {
     Tables: {
       applications: {
         Row: {
+          certification: string | null
           cover_letter_url: string | null
           id: string
           job_id: string
           job_title: string
+          modality: string | null
+          notes: string | null
           resume_url: string | null
           status: string | null
           submitted_at: string | null
@@ -27,10 +30,13 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          certification?: string | null
           cover_letter_url?: string | null
           id?: string
           job_id: string
           job_title: string
+          modality?: string | null
+          notes?: string | null
           resume_url?: string | null
           status?: string | null
           submitted_at?: string | null
@@ -38,10 +44,13 @@ export type Database = {
           user_id: string
         }
         Update: {
+          certification?: string | null
           cover_letter_url?: string | null
           id?: string
           job_id?: string
           job_title?: string
+          modality?: string | null
+          notes?: string | null
           resume_url?: string | null
           status?: string | null
           submitted_at?: string | null
@@ -94,6 +103,7 @@ export type Database = {
       jobs: {
         Row: {
           benefits: string[] | null
+          certification: string | null
           closing_date: string | null
           created_at: string | null
           description: string
@@ -102,6 +112,7 @@ export type Database = {
           id: string
           is_active: boolean | null
           location: string
+          modality: string | null
           posted_date: string | null
           requirements: string[] | null
           salary_range: string | null
@@ -110,6 +121,7 @@ export type Database = {
         }
         Insert: {
           benefits?: string[] | null
+          certification?: string | null
           closing_date?: string | null
           created_at?: string | null
           description: string
@@ -118,6 +130,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           location: string
+          modality?: string | null
           posted_date?: string | null
           requirements?: string[] | null
           salary_range?: string | null
@@ -126,6 +139,7 @@ export type Database = {
         }
         Update: {
           benefits?: string[] | null
+          certification?: string | null
           closing_date?: string | null
           created_at?: string | null
           description?: string
@@ -134,6 +148,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           location?: string
+          modality?: string | null
           posted_date?: string | null
           requirements?: string[] | null
           salary_range?: string | null

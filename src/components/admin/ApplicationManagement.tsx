@@ -24,6 +24,9 @@ interface Application {
   cover_letter_url: string | null;
   submitted_at: string;
   user_id: string;
+  modality: string | null;
+  certification: string | null;
+  notes: string | null;
 }
 
 interface UserProfile {
@@ -35,19 +38,33 @@ interface UserProfile {
 }
 
 const statusColors: Record<string, string> = {
-  pending: "bg-yellow-100 text-yellow-800",
-  reviewing: "bg-blue-100 text-blue-800",
-  interviewing: "bg-purple-100 text-purple-800",
-  rejected: "bg-red-100 text-red-800",
+  new: "bg-yellow-100 text-yellow-800",
+  under_review: "bg-blue-100 text-blue-800",
+  contacted: "bg-purple-100 text-purple-800",
+  interview: "bg-indigo-100 text-indigo-800",
   hired: "bg-green-100 text-green-800",
+  rejected: "bg-red-100 text-red-800",
 };
 
 const statusOptions = [
-  { value: "pending", label: "Pending" },
-  { value: "reviewing", label: "Under Review" },
-  { value: "interviewing", label: "Interviewing" },
-  { value: "rejected", label: "Rejected" },
+  { value: "new", label: "New" },
+  { value: "under_review", label: "Under Review" },
+  { value: "contacted", label: "Contacted" },
+  { value: "interview", label: "Interview" },
   { value: "hired", label: "Hired" },
+  { value: "rejected", label: "Rejected" },
+];
+
+const certificationOptions = [
+  { value: "all", label: "All Certifications" },
+  { value: "ARRT", label: "ARRT" },
+  { value: "ARDMS", label: "ARDMS" },
+];
+
+const employmentTypeOptions = [
+  { value: "all", label: "All Types" },
+  { value: "full-time", label: "Full-Time" },
+  { value: "part-time", label: "Part-Time" },
 ];
 
 const ApplicationManagement = () => {
@@ -62,6 +79,8 @@ const ApplicationManagement = () => {
   const [newNote, setNewNote] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterJob, setFilterJob] = useState<string>("all");
+  const [filterCertification, setFilterCertification] = useState<string>("all");
+  const [filterEmploymentType, setFilterEmploymentType] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [profileLoading, setProfileLoading] = useState(false);
   const { toast } = useToast();
@@ -165,25 +184,49 @@ const ApplicationManagement = () => {
     setShowNoteDialog(true);
   };
 
-  const handleAddNote = () => {
-    if (newNote.trim()) {
+  const handleAddNote = async () => {
+    if (!selectedApplication || !newNote.trim()) return;
+
+    try {
+      const { error } = await supabase
+        .from('applications')
+        .update({ notes: newNote })
+        .eq('id', selectedApplication.id);
+
+      if (error) throw error;
+
+      // Update local state
+      setApplications(prev => prev.map(app => 
+        app.id === selectedApplication.id 
+          ? { ...app, notes: newNote }
+          : app
+      ));
+
       toast({
         title: "Note Added",
         description: "Private note has been added to the application",
       });
       setNewNote("");
       setShowNoteDialog(false);
+    } catch (error: any) {
+      toast({
+        title: "Error adding note",
+        description: error.message,
+        variant: "destructive",
+      });
     }
   };
 
   const filteredApplications = applications.filter(app => {
     const matchesStatus = filterStatus === "all" || app.status === filterStatus;
     const matchesJob = filterJob === "all" || app.job_id === filterJob;
+    const matchesCertification = filterCertification === "all" || app.certification === filterCertification;
+    const matchesEmploymentType = filterEmploymentType === "all" || getJobEmploymentType(app.job_id) === filterEmploymentType;
     const matchesSearch = searchTerm === "" || 
       app.job_title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       app.user_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       app.id.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesStatus && matchesJob && matchesSearch;
+    return matchesStatus && matchesJob && matchesCertification && matchesEmploymentType && matchesSearch;
   });
 
   const getStatusCounts = () => {
@@ -207,6 +250,16 @@ const ApplicationManagement = () => {
   const getJobTitle = (jobId: string) => {
     const job = jobs.find(j => j.id === jobId);
     return job ? job.title : `Job ${jobId}`;
+  };
+
+  const getJobEmploymentType = (jobId: string) => {
+    const job = jobs.find(j => j.id === jobId);
+    return job ? job.tags.find(tag => tag.includes('-Time'))?.toLowerCase().replace('-time', '-time') || 'full-time' : 'full-time';
+  };
+
+  const getJobLocation = (jobId: string) => {
+    const job = jobs.find(j => j.id === jobId);
+    return job ? job.location : 'Unknown Location';
   };
 
   if (loading) {
@@ -237,7 +290,7 @@ const ApplicationManagement = () => {
               className="pl-9"
             />
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Select value={filterStatus} onValueChange={setFilterStatus}>
               <SelectTrigger className="w-48">
                 <Filter className="h-4 w-4 mr-2" />
@@ -248,6 +301,30 @@ const ApplicationManagement = () => {
                 {statusOptions.map((status) => (
                   <SelectItem key={status.value} value={status.value}>
                     {status.label} ({statusCounts[status.value] || 0})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={filterCertification} onValueChange={setFilterCertification}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Filter by certification" />
+              </SelectTrigger>
+              <SelectContent>
+                {certificationOptions.map((cert) => (
+                  <SelectItem key={cert.value} value={cert.value}>
+                    {cert.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={filterEmploymentType} onValueChange={setFilterEmploymentType}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Filter by type" />
+              </SelectTrigger>
+              <SelectContent>
+                {employmentTypeOptions.map((type) => (
+                  <SelectItem key={type.value} value={type.value}>
+                    {type.label}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -333,16 +410,18 @@ const ApplicationManagement = () => {
       {/* Applications Table */}
       <div className="border rounded-lg">
         <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Applicant</TableHead>
-              <TableHead>Position</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Applied Date</TableHead>
-              <TableHead>Documents</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
+           <TableHeader>
+             <TableRow>
+               <TableHead>Applicant</TableHead>
+               <TableHead>Position</TableHead>
+               <TableHead>Modality</TableHead>
+               <TableHead>Location</TableHead>
+               <TableHead>Status</TableHead>
+               <TableHead>Applied Date</TableHead>
+               <TableHead>Documents</TableHead>
+               <TableHead>Actions</TableHead>
+             </TableRow>
+           </TableHeader>
           <TableBody>
             {filteredApplications.map((application) => (
               <TableRow key={application.id}>
@@ -362,17 +441,23 @@ const ApplicationManagement = () => {
                     </div>
                   </div>
                 </TableCell>
-                <TableCell>
-                  <div>
-                    <p className="font-medium">{application.job_title}</p>
-                    <button
-                      onClick={() => handleViewJobDetails(application.job_id)}
-                      className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
-                    >
-                      View Job Details
-                    </button>
-                  </div>
-                </TableCell>
+                 <TableCell>
+                   <div>
+                     <p className="font-medium">{application.job_title}</p>
+                     <button
+                       onClick={() => handleViewJobDetails(application.job_id)}
+                       className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                     >
+                       View Job Details
+                     </button>
+                   </div>
+                 </TableCell>
+                 <TableCell>
+                   <Badge variant="outline">{application.modality || 'N/A'}</Badge>
+                 </TableCell>
+                 <TableCell>
+                   <span className="text-sm">{getJobLocation(application.job_id)}</span>
+                 </TableCell>
                 <TableCell>
                   <Select
                     value={application.status}
