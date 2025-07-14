@@ -52,8 +52,8 @@ const JobListings = () => {
     });
   };
 
-  const certifications = ["ARRT", "ARDMS", "CET"];
-  const modalities = ["X-Ray", "Ultrasound", "EKG"];
+  const certifications = ["ARRT", "ARDMS"];
+  const modalities = ["X-Ray", "Ultrasound"];
 
   // Grouped locations by state
   const locationsByState = {
