@@ -13,8 +13,6 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileText, MessageSquare, User, Calendar, Filter, Search, Eye, ExternalLink } from "lucide-react";
 import { Loader2 } from "lucide-react";
-import { jobs } from "@/data/jobs";
-
 interface Application {
   id: string;
   job_id: string;
@@ -27,6 +25,14 @@ interface Application {
   modality: string | null;
   certification: string | null;
   notes: string | null;
+}
+
+interface Job {
+  id: string;
+  title: string;
+  location: string;
+  employment_type: string;
+  modality: string | null;
 }
 
 interface UserProfile {
@@ -70,6 +76,7 @@ const employmentTypeOptions = [
 const ApplicationManagement = () => {
   const navigate = useNavigate();
   const [applications, setApplications] = useState<Application[]>([]);
+  const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
   const [selectedProfile, setSelectedProfile] = useState<UserProfile | null>(null);
@@ -87,6 +94,7 @@ const ApplicationManagement = () => {
 
   useEffect(() => {
     fetchApplications();
+    fetchJobs();
   }, []);
 
   const fetchApplications = async () => {
@@ -106,6 +114,24 @@ const ApplicationManagement = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchJobs = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('jobs')
+        .select('id, title, location, employment_type, modality')
+        .eq('is_active', true);
+        
+      if (error) throw error;
+      setJobs(data || []);
+    } catch (error: any) {
+      toast({
+        title: "Error fetching jobs",
+        description: error.message,
+        variant: "destructive",
+      });
     }
   };
 
@@ -254,12 +280,17 @@ const ApplicationManagement = () => {
 
   const getJobEmploymentType = (jobId: string) => {
     const job = jobs.find(j => j.id === jobId);
-    return job ? job.tags.find(tag => tag.includes('-Time'))?.toLowerCase().replace('-time', '-time') || 'full-time' : 'full-time';
+    return job ? job.employment_type : 'full-time';
   };
 
   const getJobLocation = (jobId: string) => {
     const job = jobs.find(j => j.id === jobId);
     return job ? job.location : 'Unknown Location';
+  };
+
+  const getJobModality = (jobId: string) => {
+    const job = jobs.find(j => j.id === jobId);
+    return job ? job.modality : null;
   };
 
   if (loading) {
@@ -452,9 +483,9 @@ const ApplicationManagement = () => {
                      </button>
                    </div>
                  </TableCell>
-                 <TableCell>
-                   <Badge variant="outline">{application.modality || 'N/A'}</Badge>
-                 </TableCell>
+                  <TableCell>
+                    <Badge variant="outline">{application.modality || getJobModality(application.job_id) || 'N/A'}</Badge>
+                  </TableCell>
                  <TableCell>
                    <span className="text-sm">{getJobLocation(application.job_id)}</span>
                  </TableCell>
